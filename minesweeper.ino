@@ -54,7 +54,7 @@ void reset() {
   memset(opened, 0, sizeof(opened[0][0]) * ROWS * COLUMNS);
   memset(flagged, 0, sizeof(flagged[0][0]) * ROWS * COLUMNS);
   arduboy.clear();
-  state = STATE_MENU;
+  state = STATE_HELP;
 }
 
 void setup() {
@@ -207,7 +207,7 @@ void drawGame() {
 }
 
 void settings() {
-  arduboy.drawBitmap(39, 1, settingsTitle, 50, 16, WHITE);
+  arduboy.drawBitmap(8, 1, settingsTitle, 50, 16, WHITE);
   arduboy.drawRoundRect(10, selectedY * 11 + 20, 112, 11, 5, WHITE);
 
   arduboy.setCursor(24, 22);
@@ -276,8 +276,10 @@ void helpControls() {
   //drawing the arduboy
   arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
 
-  arduboy.setCursor(14, 4);
-  arduboy.print(F("CONTROLS:"));
+  arduboy.drawBitmap(8, 0, controlsTitle, 58, 13, WHITE);
+  
+//  arduboy.setCursor(14, 4);
+//  arduboy.print(F("CONTROLS:"));
 
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
