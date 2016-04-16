@@ -7,5 +7,5 @@ nothing fancy, but it works
 ###TODO
 - [X] Add some debouncing
 - [X] Consider adding a "help"/"Controls" menu
-- [ ] sounds ?
+- [X] sounds ?
 - [ ] Consider having a bitmap for the  "help" menu

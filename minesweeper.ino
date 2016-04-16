@@ -18,6 +18,8 @@ byte tiles[COLUMNS][ROWS];
 bool opened[COLUMNS][ROWS];
 bool flagged[COLUMNS][ROWS];
 
+bool soundEnabled = true;
+byte buttons = 0;
 byte state;
 byte totalMines;
 
@@ -28,11 +30,6 @@ const unsigned char* digits[] = {
   digit_1, digit_2, digit_3, digit_4,
   digit_5, digit_6, digit_7, digit_8
 };
-
-
-
-byte buttons = 0;
-
 bool getButtonDown(byte button)
 {
   if (arduboy.pressed(button))
@@ -134,6 +131,7 @@ void propagate(byte x, byte y) {
     return;
   }
 
+  if (soundEnabled) arduboy.tunes.tone(587, 20);
   opened[x][y] = true;
 
   if (tiles[x][y] != 0) {
@@ -158,6 +156,11 @@ void clickTile(byte x, byte y) {
   } else {
     //lost
     state = STATE_LOSE;
+    if (soundEnabled) {
+      arduboy.tunes.tone(587, 40);
+      delay(160);
+      arduboy.tunes.tone(392, 40);
+    }
   }
 }
 
@@ -189,7 +192,14 @@ void drawGame() {
   drawExtras();
 }
 
-void help() {
+void helpAndSound() {
+  arduboy.setTextSize(1);
+
+  arduboy.setCursor(3, 2);
+  arduboy.print(F("sounds"));
+  arduboy.setCursor(44, 2);
+  arduboy.print(F("mute"));
+
   //drawing the arduboy
   arduboy.fillRoundRect(89, 0, 39, 64, 1, WHITE); // arduboy
   arduboy.fillRect(96, 6, 25, 16, BLACK);    // screen
@@ -201,24 +211,38 @@ void help() {
   arduboy.fillCircle(116, 41, 3, BLACK);     // buttons
   arduboy.fillCircle(123, 38, 3, BLACK);
 
-  arduboy.setTextSize(1);
-
+  // first line, for A button
   arduboy.drawLine(75, 25, 88, 25, WHITE);
   arduboy.drawLine(89, 25, 107, 25, BLACK);
   arduboy.drawLine(107, 25, 122, 35, BLACK);
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
 
+  // second line, for D-pad
   arduboy.drawLine(75, 39, 88, 39, WHITE);
   arduboy.drawLine(89, 39, 91, 39, BLACK);
   arduboy.setCursor(8, 36);
   arduboy.print(F("move cursor"));
 
+  // third line, for B button
   arduboy.drawLine(75, 55, 88, 55, WHITE);
   arduboy.drawLine(89, 55, 107, 55, BLACK);
   arduboy.drawLine(107, 55, 115, 44, BLACK);
   arduboy.setCursor(1, 51);
   arduboy.print(F("click a tile"));
+
+  // sound "menu"
+  if (soundEnabled) {
+    arduboy.drawRoundRect(0, 0, 41, 11, 1, WHITE);
+    arduboy.drawBitmap(101, 8, sound, 14, 12, WHITE);
+  } else {
+    arduboy.drawRoundRect(40, 0, 30, 11, 1, WHITE);
+    arduboy.drawBitmap(103, 8, noSound, 12, 12, WHITE);
+  }
+
+  if (getButtonDown(RIGHT_BUTTON) || getButtonDown(LEFT_BUTTON)) {
+    soundEnabled = !soundEnabled;
+  }
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     state = STATE_MENU;
@@ -237,12 +261,11 @@ void menu() {
   arduboy.setCursor(15, 44);
   arduboy.print(F("hard   (40 mines)"));
   arduboy.setCursor(15, 55);
-  arduboy.print(F("help"));
+  arduboy.print(F("help & sound"));
 
   if (arduboy.pressed(UP_BUTTON)) {
-//    if (selectedY == 0) selectedY = 3;
-//    else selectedY--;
-    selectedY += (selectedY == 0)?3:-1;
+    if (selectedY == 0) selectedY = 3;
+    else selectedY--;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
     if (selectedY == 3) selectedY = 0;
@@ -276,6 +299,13 @@ void checkVictory() {
   }
   if (ret == (COLUMNS * ROWS) - totalMines) { //yay
     state = STATE_WIN;
+    if (soundEnabled) {
+      arduboy.tunes.tone(587, 40);
+      delay(160);
+      arduboy.tunes.tone(782, 40);
+      delay(160);
+      arduboy.tunes.tone(977, 40);
+    }
   }
 }
 
@@ -287,7 +317,7 @@ void loop() {
     menu();
   }
   else if (state == STATE_HELP) {
-    help();
+    helpAndSound();
   }
   else if (state == STATE_PLAY) {
     currentTime = (millis() - startTime) / 1000;
@@ -311,8 +341,10 @@ void loop() {
     }
     else if (getButtonDown(B_BUTTON)) {
       if (flagged[selectedX][selectedY]) {
+        if (soundEnabled) arduboy.tunes.tone(800, 50);
         flagged[selectedX][selectedY] = false;
       } else if (!opened[selectedX][selectedY]) {
+        if (soundEnabled) arduboy.tunes.tone(980, 50);
         flagged[selectedX][selectedY] = true;
       }
     }
