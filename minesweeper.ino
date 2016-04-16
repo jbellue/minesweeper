@@ -6,11 +6,13 @@
 #define ROWS 9
 #define COLUMNS 15
 
-#define STATE_MENU 0
-#define STATE_HELP 1
-#define STATE_PLAY 2
-#define STATE_LOSE 3
-#define STATE_WIN  4
+#define STATE_MENU     0
+#define STATE_SETTINGS 1
+#define STATE_HELP     2
+#define STATE_HELP2    3
+#define STATE_PLAY     4
+#define STATE_LOSE     5
+#define STATE_WIN      6
 
 Arduboy arduboy;
 byte selectedX = 0;
@@ -61,6 +63,7 @@ void setup() {
   //dbg
   //  arduboy.begin();
   arduboy.setFrameRate(10);
+  arduboy.setTextSize(1);
   arduboy.initRandomSeed();
   reset();
 }
@@ -203,50 +206,102 @@ void drawGame() {
   drawExtras();
 }
 
-void helpAndSound() {
-  arduboy.setTextSize(1);
+void settings() {
+  arduboy.drawBitmap(39, 1, settingsTitle, 50, 16, WHITE);
+  arduboy.drawRoundRect(10, selectedY * 11 + 20, 112, 11, 5, WHITE);
 
-  arduboy.setCursor(3, 2);
+  arduboy.setCursor(24, 22);
   arduboy.print(F("sounds"));
-  arduboy.setCursor(44, 2);
-  arduboy.print(F("mute"));
+  arduboy.setCursor(24, 33);
+  arduboy.print(F("fast mode"));
+  arduboy.setCursor(24, 44);
+  arduboy.print(F("help"));
+  arduboy.setCursor(24, 55);
+  arduboy.print(F("back"));
 
+  if (arduboy.pressed(UP_BUTTON)) {
+    if (selectedY == 0) selectedY = 3;
+    else selectedY--;
+  }
+  else if (arduboy.pressed(DOWN_BUTTON)) {
+    if (selectedY == 3) selectedY = 0;
+    else selectedY++;
+  }
+
+  if (soundEnabled) arduboy.fillCircle(15, 25, 3, WHITE);
+  if (fastMode) arduboy.fillCircle(15, 36, 3, WHITE);
+
+  if (getButtonDown(A_BUTTON)) {
+    selectedY = 0;
+    state = STATE_MENU;
+  }
+  if (getButtonDown(B_BUTTON)) {
+    if (selectedY == 0) {
+      soundEnabled = !soundEnabled;
+      if (soundEnabled) arduboy.tunes.tone(587, 40);
+    }
+    else if (selectedY == 1) {
+      fastMode = !fastMode;
+      if (soundEnabled) arduboy.tunes.tone(587, 40);
+    }
+    else if (selectedY == 2) {
+      selectedY = 0;
+      state = STATE_HELP;
+    }
+    else {
+      selectedY = 0;
+      state = STATE_MENU;
+    }
+  }
+}
+
+void helpFastMode() {
+  arduboy.setCursor(36, 0);
+  arduboy.print(F("FAST MODE:"));
+  arduboy.setCursor(0, 14);
+  arduboy.print(F("Flagging an open tile"));
+  arduboy.setCursor(0, 24);
+  arduboy.print(F("opens all non-flagged"));
+  arduboy.setCursor(0, 34);
+  arduboy.print(F("tiles around."));
+  arduboy.setCursor(43, 50);
+  arduboy.print(F("Careful!"));
+
+  if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
+    state = STATE_SETTINGS;
+  }
+}
+
+void helpControls() {
   //drawing the arduboy
   arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
 
+  arduboy.setCursor(14, 4);
+  arduboy.print(F("CONTROLS:"));
+
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
-
   arduboy.setCursor(8, 36);
   arduboy.print(F("move cursor"));
-
   arduboy.setCursor(1, 51);
   arduboy.print(F("click a tile"));
 
-  // sound "menu"
+  // sound icon in the screen.
   if (soundEnabled) {
-    arduboy.drawRoundRect(0, 0, 41, 11, 1, WHITE);
     arduboy.drawBitmap(101, 8, sound, 14, 12, WHITE);
   } else {
-    arduboy.drawRoundRect(40, 0, 30, 11, 1, WHITE);
     arduboy.drawBitmap(103, 8, noSound, 12, 12, WHITE);
   }
 
-  if (getButtonDown(RIGHT_BUTTON) || getButtonDown(LEFT_BUTTON)) {
-    soundEnabled = !soundEnabled;
-    if (soundEnabled) arduboy.tunes.tone(587, 40);
-  }
-
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
-    state = STATE_MENU;
+    state = STATE_HELP2;
   }
 }
 
 void menu() {
-  arduboy.drawBitmap(10, 2, titleImage, 109, 18, WHITE);
-  arduboy.drawRoundRect(10, selectedY * 11 + 21, 112, 10, 2, WHITE);
+  arduboy.drawBitmap(3, 3, titleImage, 122, 12, WHITE);
+  arduboy.drawRoundRect(10, selectedY * 11 + 21, 112, 10, 5, WHITE);
 
-  arduboy.setTextSize(1);
   arduboy.setCursor(15, 22);
   arduboy.print(F("easy   (20 mines)"));
   arduboy.setCursor(15, 33);
@@ -254,7 +309,7 @@ void menu() {
   arduboy.setCursor(15, 44);
   arduboy.print(F("hard   (40 mines)"));
   arduboy.setCursor(15, 55);
-  arduboy.print(F("help & sound"));
+  arduboy.print(F("settings and help"));
 
   if (arduboy.pressed(UP_BUTTON)) {
     if (selectedY == 0) selectedY = 3;
@@ -267,7 +322,7 @@ void menu() {
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     if (selectedY == 3) {
-      state = STATE_HELP;
+      state = STATE_SETTINGS;
     }
     else
     {
@@ -322,8 +377,14 @@ void loop() {
   if (state == STATE_MENU) {
     menu();
   }
+  else if (state == STATE_SETTINGS) {
+    settings();
+  }
   else if (state == STATE_HELP) {
-    helpAndSound();
+    helpControls();
+  }
+  else if (state == STATE_HELP2) {
+    helpFastMode();
   }
   else if (state == STATE_PLAY) {
     currentTime = (millis() - startTime) / 1000;
