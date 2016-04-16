@@ -56,7 +56,7 @@ void reset() {
   memset(opened, 0, sizeof(opened[0][0]) * ROWS * COLUMNS);
   memset(flagged, 0, sizeof(flagged[0][0]) * ROWS * COLUMNS);
   arduboy.clear();
-  state = STATE_MENU;
+  state = STATE_HELP2;
 }
 
 void setup() {
@@ -252,15 +252,15 @@ void settings() {
 }
 
 void helpFastMode() {
-  arduboy.setCursor(36, 0);
-  arduboy.print(F("FAST MODE:"));
-  arduboy.setCursor(0, 14);
+  arduboy.drawBitmap(8, 1, fastModeTitle, 66, 13, WHITE);
+  
+  arduboy.setCursor(0, 17);
   arduboy.print(F("Flagging an open tile"));
-  arduboy.setCursor(0, 24);
+  arduboy.setCursor(0, 27);
   arduboy.print(F("opens all non-flagged"));
-  arduboy.setCursor(0, 34);
+  arduboy.setCursor(0, 37);
   arduboy.print(F("tiles around."));
-  arduboy.setCursor(43, 50);
+  arduboy.setCursor(43, 53);
   arduboy.print(F("Careful!"));
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
@@ -271,7 +271,7 @@ void helpFastMode() {
 void helpControls() {
   //drawing the arduboy
   arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
-  arduboy.drawBitmap(8, 0, controlsTitle, 58, 13, WHITE);
+  arduboy.drawBitmap(8, 1, controlsTitle, 58, 13, WHITE);
 
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
