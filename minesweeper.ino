@@ -29,6 +29,24 @@ const unsigned char* digits[] = {
   digit_5, digit_6, digit_7, digit_8
 };
 
+
+
+byte buttons = 0;
+
+bool getButtonDown(byte button)
+{
+  if (arduboy.pressed(button))
+  {
+    if (buttons & button) return false;
+    else buttons |= button;
+    return true;
+  }
+  else
+  {
+    if (buttons & button) buttons ^= button;
+    return false;
+  }
+}
 void reset() {
   selectedX = 0;
   selectedY = 0;
@@ -173,8 +191,8 @@ void drawGame() {
 
 void help() {
   //drawing the arduboy
-  arduboy.fillRoundRect(89,0,39,64,1,WHITE); // arduboy
-  arduboy.fillRect(96,6,25,16, BLACK);       // screen
+  arduboy.fillRoundRect(89, 0, 39, 64, 1, WHITE); // arduboy
+  arduboy.fillRect(96, 6, 25, 16, BLACK);    // screen
   arduboy.fillRect(97, 32, 5, 15, BLACK);    // dpad
   arduboy.fillRect(92, 37, 15, 5, BLACK);
   arduboy.drawLine(97, 37, 101, 41, WHITE);
@@ -184,7 +202,7 @@ void help() {
   arduboy.fillCircle(123, 38, 3, BLACK);
 
   arduboy.setTextSize(1);
-  
+
   arduboy.drawLine(75, 25, 88, 25, WHITE);
   arduboy.drawLine(89, 25, 107, 25, BLACK);
   arduboy.drawLine(107, 25, 122, 35, BLACK);
@@ -202,8 +220,8 @@ void help() {
   arduboy.setCursor(1, 51);
   arduboy.print(F("click a tile"));
 
-  if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-      state = STATE_MENU;
+  if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
+    state = STATE_MENU;
   }
 }
 
@@ -222,15 +240,16 @@ void menu() {
   arduboy.print(F("help"));
 
   if (arduboy.pressed(UP_BUTTON)) {
-    if (selectedY == 0) selectedY = 3;
-    else selectedY--;
+//    if (selectedY == 0) selectedY = 3;
+//    else selectedY--;
+    selectedY += (selectedY == 0)?3:-1;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
     if (selectedY == 3) selectedY = 0;
     else selectedY++;
   }
 
-  if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+  if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     if (selectedY == 3) {
       state = STATE_HELP;
     }
@@ -287,10 +306,10 @@ void loop() {
       selectedY++;
     }
 
-    if (arduboy.pressed(A_BUTTON)) {
+    if (getButtonDown(A_BUTTON)) {
       clickTile(selectedX, selectedY);
     }
-    else if (arduboy.pressed(B_BUTTON)) {
+    else if (getButtonDown(B_BUTTON)) {
       if (flagged[selectedX][selectedY]) {
         flagged[selectedX][selectedY] = false;
       } else if (!opened[selectedX][selectedY]) {
@@ -303,8 +322,7 @@ void loop() {
   else if (state == STATE_WIN) {
     drawGame();
     arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
-    if (arduboy.pressed(A_BUTTON)) {
-      delay(200);
+    if (getButtonDown(A_BUTTON)) {
       reset();
       state = STATE_MENU;
     }
@@ -312,7 +330,7 @@ void loop() {
   else if (state == STATE_LOSE) {
     drawGame();
     arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
-    if (arduboy.pressed(A_BUTTON)) {
+    if (getButtonDown(A_BUTTON)) {
       reset();
       state = STATE_MENU;
     }
