@@ -1,4 +1,5 @@
 #include <Arduboy.h>
+#include "bitmaps.h"
 #include "digits.h"
 
 #define TILE_SIZE 7
