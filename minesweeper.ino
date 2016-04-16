@@ -196,9 +196,9 @@ void help() {
   arduboy.setCursor(8, 36);
   arduboy.print(F("move cursor"));
 
-  arduboy.drawLine(75, 52, 88, 52, WHITE);
-  arduboy.drawLine(89, 52, 107, 52, BLACK);
-  arduboy.drawLine(107, 52, 115, 44, BLACK);
+  arduboy.drawLine(75, 55, 88, 55, WHITE);
+  arduboy.drawLine(89, 55, 107, 55, BLACK);
+  arduboy.drawLine(107, 55, 115, 44, BLACK);
   arduboy.setCursor(1, 51);
   arduboy.print(F("click a tile"));
 
