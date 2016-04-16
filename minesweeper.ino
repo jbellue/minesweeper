@@ -20,6 +20,7 @@ bool opened[COLUMNS][ROWS];
 bool flagged[COLUMNS][ROWS];
 
 bool soundEnabled = true;
+bool fastMode = true;
 byte buttons = 0;
 byte state;
 byte totalMines;
@@ -291,6 +292,19 @@ void checkVictory() {
   }
 }
 
+void clickAllSurrounding(byte x, byte y) {
+  for (int dx = x - 1; dx <= x + 1; dx++) {
+    for (int dy = y - 1; dy <= y + 1; dy++) {
+      if (dx >= 0 && dx < COLUMNS &&
+          dy >= 0 && dy < ROWS    &&
+          !(dx == x && dy == y)   &&
+          !flagged[dx][dy]) {
+        clickTile(dx, dy);
+      }
+    }
+  }
+}
+
 void loop() {
   if (!(arduboy.nextFrame())) return;
   arduboy.clear();
@@ -328,6 +342,8 @@ void loop() {
       } else if (!opened[selectedX][selectedY]) {
         if (soundEnabled) arduboy.tunes.tone(980, 50);
         flagged[selectedX][selectedY] = true;
+      } else if (fastMode) {
+        clickAllSurrounding(selectedX, selectedY);
       }
     }
     checkVictory();
