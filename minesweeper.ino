@@ -31,20 +31,19 @@ const unsigned char* digits[] = {
   digit_1, digit_2, digit_3, digit_4,
   digit_5, digit_6, digit_7, digit_8
 };
-bool getButtonDown(byte button)
-{
-  if (arduboy.pressed(button))
-  {
+
+bool getButtonDown(byte button) {
+  if (arduboy.pressed(button)) {
     if (buttons & button) return false;
     else buttons |= button;
     return true;
   }
-  else
-  {
+  else  {
     if (buttons & button) buttons ^= button;
     return false;
   }
 }
+
 void reset() {
   selectedX = 0;
   selectedY = 0;
@@ -224,6 +223,7 @@ void helpAndSound() {
 
   if (getButtonDown(RIGHT_BUTTON) || getButtonDown(LEFT_BUTTON)) {
     soundEnabled = !soundEnabled;
+    if (soundEnabled) arduboy.tunes.tone(587, 40);
   }
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
