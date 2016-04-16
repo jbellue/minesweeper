@@ -8,4 +8,5 @@ nothing fancy, but it works
 - [X] Add some debouncing
 - [X] Consider adding a "help"/"Controls" menu
 - [X] sounds ?
-- [ ] Consider having a bitmap for the  "help" menu
+- [X] Consider having a bitmap for the  "help" menu
+- [ ] clicking on an open tile should click on all surrounding unflagged tiles
