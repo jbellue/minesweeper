@@ -21,6 +21,7 @@ byte tiles[COLUMNS][ROWS];
 bool opened[COLUMNS][ROWS];
 bool flagged[COLUMNS][ROWS];
 
+bool firstTime;
 bool soundEnabled = true;
 bool fastMode = true;
 byte buttons = 0;
@@ -50,11 +51,12 @@ bool getButtonDown(byte button) {
 void reset() {
   selectedX = 0;
   selectedY = 0;
+  firstTime = true;
   memset(tiles, 0, sizeof(tiles[0][0]) * ROWS * COLUMNS);
   memset(opened, 0, sizeof(opened[0][0]) * ROWS * COLUMNS);
   memset(flagged, 0, sizeof(flagged[0][0]) * ROWS * COLUMNS);
   arduboy.clear();
-  state = STATE_HELP;
+  state = STATE_MENU;
 }
 
 void setup() {
@@ -145,7 +147,7 @@ void propagate(byte x, byte y) {
     return;
   }
 
-  if (soundEnabled) arduboy.tunes.tone(587, 20);
+  if (soundEnabled && state != STATE_LOSE) arduboy.tunes.tone(587, 20);
   opened[x][y] = true;
 
   if (tiles[x][y] != 0) {
@@ -168,13 +170,7 @@ void clickTile(byte x, byte y) {
     flagged[x][y] = false;
     propagate(x, y);
   } else {
-    //lost
     state = STATE_LOSE;
-    if (soundEnabled) {
-      arduboy.tunes.tone(587, 40);
-      delay(160);
-      arduboy.tunes.tone(392, 40);
-    }
   }
 }
 
@@ -275,11 +271,7 @@ void helpFastMode() {
 void helpControls() {
   //drawing the arduboy
   arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
-
   arduboy.drawBitmap(8, 0, controlsTitle, 58, 13, WHITE);
-  
-//  arduboy.setCursor(14, 4);
-//  arduboy.print(F("CONTROLS:"));
 
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
@@ -431,6 +423,14 @@ void loop() {
     }
   }
   else if (state == STATE_LOSE) {
+    if (firstTime) {
+      firstTime = false;
+      if (soundEnabled) {
+        arduboy.tunes.tone(587, 40);
+        delay(160);
+        arduboy.tunes.tone(392, 40);
+      }
+    }
     drawGame();
     drawMines();
     arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
