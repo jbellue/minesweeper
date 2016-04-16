@@ -6,9 +6,10 @@
 #define COLUMNS 15
 
 #define STATE_MENU 0
-#define STATE_PLAY 1
-#define STATE_LOSE 2
-#define STATE_WIN  3
+#define STATE_HELP 1
+#define STATE_PLAY 2
+#define STATE_LOSE 3
+#define STATE_WIN  4
 
 Arduboy arduboy;
 byte selectedX = 0;
@@ -170,34 +171,78 @@ void drawGame() {
   drawExtras();
 }
 
-void menu() {
-  arduboy.drawBitmap(10, 10, titleImage, 109, 18, WHITE);
-  arduboy.drawRoundRect(10, selectedY * 12 + 29, 112, 10, 2, WHITE);
+void help() {
+  //drawing the arduboy
+  arduboy.fillRoundRect(89,0,39,64,1,WHITE); // arduboy
+  arduboy.fillRect(96,6,25,16, BLACK);       // screen
+  arduboy.fillRect(97, 32, 5, 15, BLACK);    // dpad
+  arduboy.fillRect(92, 37, 15, 5, BLACK);
+  arduboy.drawLine(97, 37, 101, 41, WHITE);
+  arduboy.drawLine(97, 41, 101, 37, WHITE);
+
+  arduboy.fillCircle(116, 41, 3, BLACK);     // buttons
+  arduboy.fillCircle(123, 38, 3, BLACK);
 
   arduboy.setTextSize(1);
-  arduboy.setCursor(15, 30);
+  
+  arduboy.drawLine(75, 25, 88, 25, WHITE);
+  arduboy.drawLine(89, 25, 107, 25, BLACK);
+  arduboy.drawLine(107, 25, 122, 35, BLACK);
+  arduboy.setCursor(8, 21);
+  arduboy.print(F("toggle flag"));
+
+  arduboy.drawLine(75, 39, 88, 39, WHITE);
+  arduboy.drawLine(89, 39, 91, 39, BLACK);
+  arduboy.setCursor(8, 36);
+  arduboy.print(F("move cursor"));
+
+  arduboy.drawLine(75, 52, 88, 52, WHITE);
+  arduboy.drawLine(89, 52, 107, 52, BLACK);
+  arduboy.drawLine(107, 52, 115, 44, BLACK);
+  arduboy.setCursor(1, 51);
+  arduboy.print(F("click a tile"));
+
+  if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+      state = STATE_MENU;
+  }
+}
+
+void menu() {
+  arduboy.drawBitmap(10, 2, titleImage, 109, 18, WHITE);
+  arduboy.drawRoundRect(10, selectedY * 11 + 21, 112, 10, 2, WHITE);
+
+  arduboy.setTextSize(1);
+  arduboy.setCursor(15, 22);
   arduboy.print(F("easy   (20 mines)"));
-  arduboy.setCursor(15, 42);
+  arduboy.setCursor(15, 33);
   arduboy.print(F("medium (30 mines)"));
-  arduboy.setCursor(15, 54);
+  arduboy.setCursor(15, 44);
   arduboy.print(F("hard   (40 mines)"));
+  arduboy.setCursor(15, 55);
+  arduboy.print(F("help"));
 
   if (arduboy.pressed(UP_BUTTON)) {
-    if (selectedY == 0) selectedY = 2;
+    if (selectedY == 0) selectedY = 3;
     else selectedY--;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
-    if (selectedY == 2) selectedY = 0;
+    if (selectedY == 3) selectedY = 0;
     else selectedY++;
   }
 
   if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-    totalMines = 20 + selectedY * 10; // 20 - 30 - 40
+    if (selectedY == 3) {
+      state = STATE_HELP;
+    }
+    else
+    {
+      totalMines = 20 + selectedY * 10; // 20 - 30 - 40
+      setMines();
+      getNumberOfSurroundingMines();
+      startTime = millis();
+      state = STATE_PLAY;
+    }
     selectedY = 0;
-    setMines();
-    getNumberOfSurroundingMines();
-    startTime = millis();
-    state = STATE_PLAY;
   }
 }
 
@@ -221,6 +266,9 @@ void loop() {
 
   if (state == STATE_MENU) {
     menu();
+  }
+  else if (state == STATE_HELP) {
+    help();
   }
   else if (state == STATE_PLAY) {
     currentTime = (millis() - startTime) / 1000;
