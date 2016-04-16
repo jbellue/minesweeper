@@ -202,33 +202,14 @@ void helpAndSound() {
   arduboy.print(F("mute"));
 
   //drawing the arduboy
-  arduboy.fillRoundRect(89, 0, 39, 64, 1, WHITE); // arduboy
-  arduboy.fillRect(96, 6, 25, 16, BLACK);    // screen
-  arduboy.fillRect(97, 32, 5, 15, BLACK);    // dpad
-  arduboy.fillRect(92, 37, 15, 5, BLACK);
-  arduboy.drawLine(97, 37, 101, 41, WHITE);
-  arduboy.drawLine(97, 41, 101, 37, WHITE);
+  arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
 
-  arduboy.fillCircle(116, 41, 3, BLACK);     // buttons
-  arduboy.fillCircle(123, 38, 3, BLACK);
-
-  // first line, for A button
-  arduboy.drawLine(75, 25, 88, 25, WHITE);
-  arduboy.drawLine(89, 25, 107, 25, BLACK);
-  arduboy.drawLine(107, 25, 122, 35, BLACK);
   arduboy.setCursor(8, 21);
   arduboy.print(F("toggle flag"));
 
-  // second line, for D-pad
-  arduboy.drawLine(75, 39, 88, 39, WHITE);
-  arduboy.drawLine(89, 39, 91, 39, BLACK);
   arduboy.setCursor(8, 36);
   arduboy.print(F("move cursor"));
 
-  // third line, for B button
-  arduboy.drawLine(75, 55, 88, 55, WHITE);
-  arduboy.drawLine(89, 55, 107, 55, BLACK);
-  arduboy.drawLine(107, 55, 115, 44, BLACK);
   arduboy.setCursor(1, 51);
   arduboy.print(F("click a tile"));
 
