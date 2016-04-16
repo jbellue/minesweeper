@@ -89,6 +89,16 @@ void drawGrid() {
   }
 }
 
+void drawMines() {
+  for (byte x = 0; x < COLUMNS; x++) {
+    for (byte y = 0; y < ROWS; y++) {
+      if (tiles[x][y] == 9) {
+        arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 2, mineTile, 4, 4, BLACK);
+      }
+    }
+  }
+}
+
 void getNumberOfSurroundingMines() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
@@ -359,6 +369,7 @@ void loop() {
   }
   else if (state == STATE_LOSE) {
     drawGame();
+    drawMines();
     arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
     if (getButtonDown(A_BUTTON)) {
       reset();
