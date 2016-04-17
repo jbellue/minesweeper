@@ -19,11 +19,11 @@ byte selectedX = 0;
 byte selectedY = 0;
 byte tiles[COLUMNS][ROWS];
 /* Each tile is defined by a byte:
-    the first bit says whether the tile's mined or not
-    the second bit says whether the tile's opened or not
-    the third bit says whether the tile's been flagged or not
-    the fourth bit is useless
-    bit 5-6-7-8 count the amount of surrounding mines
+    the first four count the amount of surrounding mines
+    the fifth bit is useless
+    the sixth bit says whether the tile's flagged or not
+    the seventh bit says whether the tile's been opened or not
+    the eigth bit says whether the tile's mined
 */
 
 bool firstTime;
@@ -98,7 +98,6 @@ void drawGrid() {
   }
 }
 
-
 void drawMines() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
@@ -128,7 +127,7 @@ void getNumberOfSurroundingMines() {
       }
       tiles[x][y] += surroundingMines;
     }
-  }   
+  }
 }
 
 void drawCursor() {
@@ -153,7 +152,7 @@ void setMines() {
 
 void propagate(byte x, byte y) {
   // stop propagation if it's flagged or already opened
-  if ((tiles[x][y] & (1 << 5)) || (tiles[x][y] & (1 << 6))) {
+  if (((tiles[x][y] >> 5) & 1) || ((tiles[x][y] >> 6) & 1)) {
     return;
   }
 
@@ -161,11 +160,11 @@ void propagate(byte x, byte y) {
 
   tiles[x][y] |= (1 << 6); // open tile
   if ((tiles[x][y] & 0x0F) > 0) {
-    return;
-  }
+      return;
+    }
 
   for (int dx = x - 1; dx <= x + 1; dx++) {
-    for (int dy = y - 1; dy <= y + 1; dy++) {
+  for (int dy = y - 1; dy <= y + 1; dy++) {
       if (dx >= 0 && dx < COLUMNS &&
           dy >= 0 && dy < ROWS    &&
           !(dx == x && dy == y)) {
@@ -191,7 +190,7 @@ int minesLeft() {
   int ret = totalMines;
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if (tiles[x][y] & (1 << 5)) {
+      if ((tiles[x][y] >> 5) & 1) { // if flagged
         ret--;
       }
     }
@@ -344,7 +343,7 @@ void checkVictory() {
   byte ret = 0;
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if (tiles[x][y] & (1 << 6)) {
+      if ((tiles[x][y] >> 6) & 1) {
         ret++;
       }
     }
@@ -367,7 +366,7 @@ void clickAllSurrounding(byte x, byte y) {
       if (dx >= 0 && dx < COLUMNS &&
           dy >= 0 && dy < ROWS    &&
           !(dx == x && dy == y)   &&
-          !(tiles[dx][dy] & (1 << 5))) {
+          !((tiles[dx][dy] >> 5) & 1)) {
         clickTile(dx, dy);
       }
     }
