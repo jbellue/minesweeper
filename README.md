@@ -8,7 +8,9 @@
 - Incredible art!
 - Fast mode!
   - Flagging an open tile will click all non-flagged surrounding tiles. It's faster, it's also deadlier. If you're scared, you can deactivate it in the menu.
-
+- Best times saved on the EEPROM, yay!
+  - Press LEFT or RIGHT on the main menu to see them. In there, press both UP and DOWN to erase them.
+  
 ## Controls
 - Move with the D-Pad
 - Left button opens a tile
@@ -29,6 +31,6 @@ Each tile is represented by a byte:
 
 ###TODO
 - [ ] Make the menus not as rubbish,
-- [ ] High scores on the EEPROM?
+- [X] High scores on the EEPROM
 
 Note: great thanks to http://fuopy.github.io/arduboy-image-converter/
