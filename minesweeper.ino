@@ -6,13 +6,16 @@
 #define ROWS 9
 #define COLUMNS 15
 
-#define STATE_MENU     0
-#define STATE_SETTINGS 1
-#define STATE_HELP     2
-#define STATE_HELP2    3
-#define STATE_PLAY     4
-#define STATE_LOSE     5
-#define STATE_WIN      6
+enum {
+  STATE_MENU,
+  STATE_SETTINGS,
+  STATE_HELP,
+  STATE_HELP2,
+  STATE_PLAY,
+  STATE_LOSE,
+  STATE_WIN,
+};
+byte state;
 
 Arduboy arduboy;
 byte selectedX = 0;
@@ -30,7 +33,6 @@ bool firstTime;
 bool soundEnabled = true;
 bool fastMode = true;
 byte buttons = 0;
-byte state;
 byte totalMines;
 
 unsigned long startTime;
@@ -160,11 +162,11 @@ void propagate(byte x, byte y) {
 
   tiles[x][y] |= (1 << 6); // open tile
   if ((tiles[x][y] & 0x0F) > 0) {
-      return;
-    }
+    return;
+  }
 
   for (int dx = x - 1; dx <= x + 1; dx++) {
-  for (int dy = y - 1; dy <= y + 1; dy++) {
+    for (int dy = y - 1; dy <= y + 1; dy++) {
       if (dx >= 0 && dx < COLUMNS &&
           dy >= 0 && dy < ROWS    &&
           !(dx == x && dy == y)) {
