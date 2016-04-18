@@ -6,6 +6,8 @@
 #define ROWS 9
 #define COLUMNS 15
 
+const byte difficultyLevel[] = {20, 30, 40};
+
 enum {
   STATE_MENU,
   STATE_SETTINGS,
@@ -311,11 +313,17 @@ void menu() {
   arduboy.drawRoundRect(10, menuPosition * 11 + 21, 112, 10, 5, WHITE);
 
   arduboy.setCursor(15, 22);
-  arduboy.print(F("easy   (20 mines)"));
+  arduboy.print(F("easy   ("));
+  arduboy.print(difficultyLevel[0]);
+  arduboy.print(F(" mines)"));
   arduboy.setCursor(15, 33);
-  arduboy.print(F("medium (30 mines)"));
+  arduboy.print(F("medium ("));
+  arduboy.print(difficultyLevel[1]);
+  arduboy.print(F(" mines)"));
   arduboy.setCursor(15, 44);
-  arduboy.print(F("hard   (40 mines)"));
+  arduboy.print(F("hard   ("));
+  arduboy.print(difficultyLevel[2]);
+  arduboy.print(F(" mines)"));
   arduboy.setCursor(15, 55);
   arduboy.print(F("settings and help"));
 
@@ -335,7 +343,7 @@ void menu() {
     }
     else
     {
-      totalMines = 20 + menuPosition * 10; // 20 - 30 - 40
+      totalMines = difficultyLevel[menuPosition];
       setMines();
       getNumberOfSurroundingMines();
       startTime = millis();
