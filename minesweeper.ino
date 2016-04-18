@@ -20,6 +20,8 @@ byte state;
 Arduboy arduboy;
 byte selectedX = 0;
 byte selectedY = 0;
+byte menuPosition = 0;
+
 byte tiles[COLUMNS][ROWS];
 /* Each tile is defined by a byte:
   00000000
@@ -216,7 +218,7 @@ void drawGame() {
 
 void settings() {
   arduboy.drawBitmap(0, 1, settingsTitle, 58, 18, WHITE);
-  arduboy.drawRoundRect(10, selectedY * 11 + 20, 112, 11, 5, WHITE);
+  arduboy.drawRoundRect(10, menuPosition * 11 + 20, 112, 11, 5, WHITE);
 
   arduboy.setCursor(24, 22);
   arduboy.print(F("sounds"));
@@ -228,36 +230,36 @@ void settings() {
   arduboy.print(F("back"));
 
   if (arduboy.pressed(UP_BUTTON)) {
-    if (selectedY == 0) selectedY = 3;
-    else selectedY--;
+    if (menuPosition == 0) menuPosition = 3;
+    else menuPosition--;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
-    if (selectedY == 3) selectedY = 0;
-    else selectedY++;
+    if (menuPosition == 3) menuPosition = 0;
+    else menuPosition++;
   }
 
   if (soundEnabled) arduboy.fillCircle(15, 25, 3, WHITE);
   if (fastMode) arduboy.fillCircle(15, 36, 3, WHITE);
 
   if (getButtonDown(A_BUTTON)) {
-    selectedY = 0;
+    menuPosition = 0;
     state = STATE_MENU;
   }
   if (getButtonDown(B_BUTTON)) {
-    if (selectedY == 0) {
+    if (menuPosition == 0) {
       soundEnabled = !soundEnabled;
       if (soundEnabled) arduboy.tunes.tone(587, 40);
     }
-    else if (selectedY == 1) {
+    else if (menuPosition == 1) {
       fastMode = !fastMode;
       if (soundEnabled) arduboy.tunes.tone(587, 40);
     }
-    else if (selectedY == 2) {
-      selectedY = 0;
+    else if (menuPosition == 2) {
+      menuPosition = 0;
       state = STATE_HELP;
     }
     else {
-      selectedY = 0;
+      menuPosition = 0;
       state = STATE_MENU;
     }
   }
@@ -306,7 +308,7 @@ void helpControls() {
 
 void menu() {
   arduboy.drawBitmap(3, 3, titleImage, 122, 12, WHITE);
-  arduboy.drawRoundRect(10, selectedY * 11 + 21, 112, 10, 5, WHITE);
+  arduboy.drawRoundRect(10, menuPosition * 11 + 21, 112, 10, 5, WHITE);
 
   arduboy.setCursor(15, 22);
   arduboy.print(F("easy   (20 mines)"));
@@ -318,27 +320,27 @@ void menu() {
   arduboy.print(F("settings and help"));
 
   if (arduboy.pressed(UP_BUTTON)) {
-    if (selectedY == 0) selectedY = 3;
-    else selectedY--;
+    if (menuPosition == 0) menuPosition = 3;
+    else menuPosition--;
   }
   else if (arduboy.pressed(DOWN_BUTTON)) {
-    if (selectedY == 3) selectedY = 0;
-    else selectedY++;
+    if (menuPosition == 3) menuPosition = 0;
+    else menuPosition++;
   }
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
-    if (selectedY == 3) {
+    if (menuPosition == 3) {
       state = STATE_SETTINGS;
+      menuPosition = 0;
     }
     else
     {
-      totalMines = 20 + selectedY * 10; // 20 - 30 - 40
+      totalMines = 20 + menuPosition * 10; // 20 - 30 - 40
       setMines();
       getNumberOfSurroundingMines();
       startTime = millis();
       state = STATE_PLAY;
     }
-    selectedY = 0;
   }
 }
 
