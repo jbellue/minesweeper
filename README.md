@@ -28,8 +28,7 @@ Each tile is represented by a byte:
 ```
 
 ###TODO
-- [ ] Make the menus not as rubbish (e.g. remember position, not look like they've been done by a 5 year old),
-- [ ] Make extra sure I'm not doing anything stupid with the tile bytes,
+- [ ] Make the menus not as rubbish,
 - [ ] High scores on the EEPROM?
 
 Note: great thanks to http://fuopy.github.io/arduboy-image-converter/
