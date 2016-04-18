@@ -2,7 +2,7 @@
 
 ## A simple minesweeper for arduboy.
 - A grid of 15 * 9,
-- Three levels of difficulty: easy (mines), medium (30) and hard (40),
+- Three levels of difficulty: easy (20 mines), medium (30) and hard (40),
 - Awesome old-school mutable sound effects (because I can't do sound design),
 - Vastly uncommented code (because apparently, I can't really code),
 - Incredible art!
@@ -18,11 +18,14 @@
 
 ### technical stuff
 Each tile is represented by a byte:
-- bits 0-3 store the number of surrounding mines
-- bit 4 is useless. I should add stuff, just so I don't waste time.
-- bit 5 is 1 if the tile has been flagged
-- bit 6 is 1 if the tile has been opened
-- bit 7 is 1 if the tile has a mine
+```
+00000000
+1....... tile has a mine
+.1...... tile has been opened
+..1..... tile has been flagged
+...x.... unused, waste of valuable space
+....1111 number of surrounding mines (0 to 8)
+```
 
 ###TODO
 - [ ] Make the menus not as rubbish (e.g. remember position, not look like they've been done by a 5 year old),

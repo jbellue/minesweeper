@@ -22,11 +22,12 @@ byte selectedX = 0;
 byte selectedY = 0;
 byte tiles[COLUMNS][ROWS];
 /* Each tile is defined by a byte:
-    the first four count the amount of surrounding mines
-    the fifth bit is useless
-    the sixth bit says whether the tile's flagged or not
-    the seventh bit says whether the tile's been opened or not
-    the eigth bit says whether the tile's mined
+  00000000
+  1....... tile has a mine
+  .1...... tile has been opened
+  ..1..... tile has been flagged
+  ...x.... unused, waste of valuable space
+  ....1111 number of surrounding mines (0 to 8)
 */
 
 bool firstTime;
