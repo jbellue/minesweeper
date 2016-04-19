@@ -312,7 +312,13 @@ void clearHighscoreConfirm() {
   arduboy.print(F("Delete highscores?"));
   arduboy.drawRoundRect(38, menuPosition * 11 + 35, 51, 11, 5, WHITE);
   arduboy.setCursor(43, 37);
-  arduboy.print(F("Confirm"));
+  if (firstTime) {
+    arduboy.print(F("Confirm"));
+  }
+  else {
+    arduboy.print(F("Sure?"));
+
+  }
   arduboy.setCursor(46, 48);
   arduboy.print(F("Cancel"));
 
@@ -321,7 +327,14 @@ void clearHighscoreConfirm() {
   }
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     if (menuPosition == 0) {
-      clearHighScores(HIGH_SCORE_FILE_NAME);
+      if (firstTime) {
+        firstTime = false;
+        return;
+      }
+      else {
+        clearHighScores(HIGH_SCORE_FILE_NAME);
+        firstTime = true;
+      }
     }
     state = STATE_MENU;
   }
@@ -623,7 +636,7 @@ void enterHighScore(byte file, byte level) {
   // Best time processing
   hi = EEPROM.read(address + (5 * level));
   lo = EEPROM.read(address + (5 * level) + 1);
-//  if ((hi == 0xFF) && (lo == 0xFF)) {
+  //  if ((hi == 0xFF) && (lo == 0xFF)) {
   if ((hi == 0x00) && (lo == 0x00)) {
     // The values are uninitialized, so treat this entry
     // as a score of 999 (max time)
