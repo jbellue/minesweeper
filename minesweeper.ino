@@ -2,6 +2,8 @@
 #include "bitmaps.h"
 #include "digits.h"
 
+//#define DEBUG
+
 #define TILE_SIZE 7
 #define ROWS 9
 #define COLUMNS 15
@@ -52,7 +54,13 @@ byte tiles[COLUMNS][ROWS];
 */
 
 bool firstTime;
+
+#ifdef DEBUG
 bool soundEnabled = false;
+#else
+bool soundEnabled = true;
+#endif
+
 bool fastMode = true;
 byte buttons = 0;
 byte totalMines;
@@ -87,10 +95,11 @@ void reset() {
 }
 
 void setup() {
-  //dbg
+#ifdef DEBUG
   arduboy.beginNoLogo();
-  //dbg
-  //  arduboy.begin();
+#else
+  arduboy.begin();
+#endif
   arduboy.setFrameRate(10);
   arduboy.setTextSize(1);
   arduboy.initRandomSeed();
@@ -120,6 +129,9 @@ void drawGrid() {
   for (byte h = TILE_SIZE; h < HEIGHT; h += TILE_SIZE) {
     arduboy.drawFastHLine(0, h, WIDTH - 22, WHITE);
   }
+#ifdef DEBUG
+  drawMines();
+#endif
 }
 
 void drawMines() {

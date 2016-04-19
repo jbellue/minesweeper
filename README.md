@@ -31,6 +31,6 @@ Each tile is represented by a byte:
 
 ###TODO
 - [ ] Comments. Comments, comments, and comments.
-- [ ] Maybe get some kind of debug mode?
+- [X] Maybe get some kind of debug mode?
 
 Note: great thanks to http://fuopy.github.io/arduboy-image-converter/
