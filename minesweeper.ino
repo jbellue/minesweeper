@@ -663,7 +663,6 @@ void displayHighScores(byte file) {
   arduboy.setCursor(34, 5);
   arduboy.print("BEST TIMES");
   arduboy.display();
-  char* levelName[] = {"Easy", "Medium", "Hard"};
 
   for (int i = 0; i < 3; i++) {
     hi = EEPROM.read(address + (5 * i));
@@ -681,7 +680,7 @@ void displayHighScores(byte file) {
     initials[2] = (char)EEPROM.read(address + (5 * i) + 4);
 
     if (currentTime < 999) {
-      sprintf(text_buffer, "%-6s %c%c%c (%u)", levelName[i], initials[0], initials[1], initials[2], currentTime);
+      sprintf(text_buffer, "%-6s %c%c%c (%u)", levels[i].name, initials[0], initials[1], initials[2], currentTime);
       arduboy.setCursor(22, 22 + (i * 12));
       arduboy.print(text_buffer);
 
