@@ -30,7 +30,7 @@ Each tile is represented by a byte:
 ```
 
 ###TODO
-- [ ] Make the menus not as rubbish,
-- [X] High scores on the EEPROM
+- [ ] Comments. Comments, comments, and comments.
+- [ ] Maybe get some kind of debug mode?
 
 Note: great thanks to http://fuopy.github.io/arduboy-image-converter/
