@@ -480,9 +480,9 @@ void loop() {
     arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
     if (getButtonDown(A_BUTTON)) {
       enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
-      displayHighScores(HIGH_SCORE_FILE_NAME);
+      
       reset();
-      state = STATE_MENU;
+      state = STATE_HIGHSCORE;
     }
   }
   else if (state == STATE_LOSE) {
@@ -618,8 +618,8 @@ void enterHighScore(byte file, byte level) {
   lo = EEPROM.read(address + (5 * level) + 1);
   if ((hi == 0xFF) && (lo == 0xFF)) {
     // The values are uninitialized, so treat this entry
-    // as a score of 0.
-    tmpScore = 0;
+    // as a score of 999 (max time)
+    tmpScore = 999;
   }
   else {
     tmpScore = (hi << 8) | lo;
@@ -662,7 +662,7 @@ void displayHighScores(byte file) {
     lo = EEPROM.read(address + (5 * i) + 1);
 
     if ((hi == 0xFF) && (lo == 0xFF)) {
-      currentTime = 0;
+      currentTime = 999;
     }
     else {
       currentTime = (hi << 8) | lo;
@@ -672,7 +672,7 @@ void displayHighScores(byte file) {
     initials[1] = (char)EEPROM.read(address + (5 * i) + 3);
     initials[2] = (char)EEPROM.read(address + (5 * i) + 4);
 
-    if (currentTime > 0) {
+    if (currentTime < 999) {
       sprintf(text_buffer, "%-6s %c%c%c (%u)", levelName[i], initials[0], initials[1], initials[2], currentTime);
       arduboy.setCursor(22, 22 + (i * 12));
       arduboy.print(text_buffer);
