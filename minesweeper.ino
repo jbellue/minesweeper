@@ -7,7 +7,17 @@
 #define COLUMNS 15
 #define HIGH_SCORE_FILE_NAME 3
 
-const byte difficultyLevel[] = {20, 30, 40};
+typedef struct
+{
+  const char* name;
+  const byte mines;
+} level;
+
+level levels[] = {
+  {"easy", 20},
+  {"medium", 30},
+  {"hard", 40}
+};
 
 enum {
   STATE_MENU,
@@ -345,15 +355,12 @@ void menu() {
   arduboy.drawBitmap(3, 3, titleImage, 122, 12, WHITE);
   arduboy.drawRoundRect(10, menuPosition * 11 + 21, 112, 10, 5, WHITE);
 
-  arduboy.setCursor(15, 22);
-  sprintf(text_buffer, "easy   (%d mines)", difficultyLevel[0]);
-  arduboy.print(text_buffer);
-  arduboy.setCursor(15, 33);
-  sprintf(text_buffer, "medium (%d mines)", difficultyLevel[1]);
-  arduboy.print(text_buffer);
-  arduboy.setCursor(15, 44);
-  sprintf(text_buffer, "hard   (%d mines)", difficultyLevel[2]);
-  arduboy.print(text_buffer);
+  for (byte i = 0; i < 3; i++) {
+    arduboy.setCursor(15, (11 * i) + 22);
+    sprintf(text_buffer, "%s (%d mines)", levels[i].name, levels[i].mines);
+    arduboy.print(text_buffer);
+  }
+
   arduboy.setCursor(15, 55);
   arduboy.print(F("settings and help"));
 
@@ -372,7 +379,7 @@ void menu() {
     }
     else
     {
-      totalMines = difficultyLevel[menuPosition];
+      totalMines = levels[menuPosition].mines;
       setMines();
       getNumberOfSurroundingMines();
       startTime = millis();
@@ -480,7 +487,7 @@ void loop() {
     arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
     if (getButtonDown(A_BUTTON)) {
       enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
-      
+
       reset();
       state = STATE_HIGHSCORE;
     }
@@ -616,7 +623,8 @@ void enterHighScore(byte file, byte level) {
   // Best time processing
   hi = EEPROM.read(address + (5 * level));
   lo = EEPROM.read(address + (5 * level) + 1);
-  if ((hi == 0xFF) && (lo == 0xFF)) {
+//  if ((hi == 0xFF) && (lo == 0xFF)) {
+  if ((hi == 0x00) && (lo == 0x00)) {
     // The values are uninitialized, so treat this entry
     // as a score of 999 (max time)
     tmpScore = 999;
