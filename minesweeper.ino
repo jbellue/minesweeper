@@ -357,7 +357,7 @@ void menu() {
 
   for (byte i = 0; i < 3; i++) {
     arduboy.setCursor(15, (11 * i) + 22);
-    sprintf(text_buffer, "%s (%d mines)", levels[i].name, levels[i].mines);
+    sprintf(text_buffer, "%-6s (%d mines)", levels[i].name, levels[i].mines);
     arduboy.print(text_buffer);
   }
 
