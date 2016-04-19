@@ -120,7 +120,6 @@ void drawGrid() {
   for (byte h = TILE_SIZE; h < HEIGHT; h += TILE_SIZE) {
     arduboy.drawFastHLine(0, h, WIDTH - 22, WHITE);
   }
-  drawMines();
 }
 
 void drawMines() {
