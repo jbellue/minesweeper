@@ -347,11 +347,12 @@ void clearHighscoreConfirm() {
   arduboy.setCursor(10, 22);
   arduboy.print(F("Delete highscores?"));
   arduboy.drawRoundRect(38, menuPosition * 11 + 35, 51, 11, 5, WHITE);
-  arduboy.setCursor(43, 37);
   if (firstTime) {
+    arduboy.setCursor(43, 37);
     arduboy.print(F("Confirm"));
   }
   else {
+    arduboy.setCursor(48, 37);
     arduboy.print(F("Sure?"));
 
   }
