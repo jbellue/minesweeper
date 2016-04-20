@@ -2,7 +2,7 @@
 #include "bitmaps.h"
 #include "digits.h"
 
-//#define DEBUG
+#define DEBUG
 
 #define TILE_SIZE 7
 #define ROWS 9
@@ -106,17 +106,42 @@ void setup() {
   reset();
 }
 
+bool isOpen(byte x, byte y) {
+  return ((tiles[x][y] >> 6) & 1);
+}
+bool isFlagged(byte x, byte y) {
+  return ((tiles[x][y] >> 5) & 1);
+}
+bool isMined(byte x, byte y) {
+  return ((tiles[x][y] >> 7) & 1);
+}
+byte getSurroundingMines(byte x, byte y) {
+  return (tiles[x][y] & 0x0F);
+}
+void setMine(byte x, byte y) {
+  tiles[x][y] |= (1 << 7);
+}
+void setOpen(byte x, byte y) {
+  tiles[x][y] |= (1 << 6);
+}
+void unsetFlag(byte x, byte y) {
+  tiles[x][y] &= ~(1 << 5);
+}
+void setFlag(byte x, byte y) {
+  tiles[x][y] |= (1 << 5);
+}
+
 void drawGrid() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if ((tiles[x][y] >> 6) & 1) { // if opened
-        if ((tiles[x][y] & 0x0F) > 0) { // if there are surrounding mines, draw the digit
-          arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 1, digits[(tiles[x][y] & 0x0F) - 1], 3, 5, WHITE);
+      if (isOpen(x, y)) {
+        if (getSurroundingMines(x, y) > 0) { // if there are surrounding mines, draw the digit
+          arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 1, digits[getSurroundingMines(x, y) - 1], 3, 5, WHITE);
         }
       } else {
         arduboy.fillRect(x * TILE_SIZE + 2, y * TILE_SIZE + 2 , 4, 4, WHITE);
       }
-      if ((tiles[x][y] >> 5) & 1) { // if flagged
+      if (isFlagged(x, y)) { // if flagged
         arduboy.fillRect(x * TILE_SIZE + 3, y * TILE_SIZE + 3, 2, 2, BLACK);
       }
     }
@@ -137,7 +162,7 @@ void drawGrid() {
 void drawMines() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if ((tiles[x][y] >> 7) & 1) { // if there's a mine
+      if (isMined(x, y)) { // if there's a mine
         arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 2, mineTile, 4, 4, BLACK);
       }
     }
@@ -149,13 +174,13 @@ void getNumberOfSurroundingMines() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
       surroundingMines = 0;
-      if (!((tiles[x][y] >> 7) & 1)) { // if there's no mine
+      if (!isMined(x, y)) { // if there's no mine
         for (int dx = x - 1; dx <= x + 1; dx++) {
           for (int dy = y - 1; dy <= y + 1; dy++) {
             if (dx >= 0 && dx < COLUMNS &&
                 dy >= 0 && dy < ROWS    &&
                 !(dx == x && dy == y)   &&
-                ((tiles[dx][dy] >> 7) & 1)) {
+                (isMined(dx, dy))) {
               surroundingMines++;
             }
           }
@@ -179,8 +204,8 @@ void setMines() {
     randX = random(0, COLUMNS);
     randY = random(0, ROWS);
 
-    if (!(tiles[randX][randY] >> 7) & 1) {
-      tiles[randX][randY] |= (1 << 7);
+    if (!isMined(randX, randY)) {
+      setMine(randX, randY);
       numberOfMines--;
     }
   }
@@ -188,14 +213,14 @@ void setMines() {
 
 void propagate(byte x, byte y) {
   // stop propagation if it's flagged or already opened
-  if (((tiles[x][y] >> 5) & 1) || ((tiles[x][y] >> 6) & 1)) {
+  if (isFlagged(x, y) || isOpen(x, y)) {
     return;
   }
 
   if (soundEnabled && state != STATE_LOSE) arduboy.tunes.tone(587, 20);
 
-  tiles[x][y] |= (1 << 6); // open tile
-  if ((tiles[x][y] & 0x0F) > 0) {
+  setOpen(x, y);
+  if (getSurroundingMines(x, y) > 0) {
     return;
   }
 
@@ -211,8 +236,8 @@ void propagate(byte x, byte y) {
 }
 
 void clickTile(byte x, byte y) {
-  if (!(tiles[x][y] >> 7) & 1) {
-    tiles[x][y] &= ~(1 << 5); // unflag tile
+  if (!isMined(x, y)) {
+    unsetFlag(x, y);
     propagate(x, y);
   } else {
     state = STATE_LOSE;
@@ -226,7 +251,7 @@ int minesLeft() {
   int ret = totalMines;
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if ((tiles[x][y] >> 5) & 1) { // if flagged
+      if (isFlagged(x, y)) {
         ret--;
       }
     }
@@ -420,7 +445,7 @@ void checkVictory() {
   byte ret = 0;
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if ((tiles[x][y] >> 6) & 1) {
+      if (isOpen(x, y)) {
         ret++;
       }
     }
@@ -443,7 +468,7 @@ void clickAllSurrounding(byte x, byte y) {
       if (dx >= 0 && dx < COLUMNS &&
           dy >= 0 && dy < ROWS    &&
           !(dx == x && dy == y)   &&
-          !((tiles[dx][dy] >> 5) & 1)) {
+          !isFlagged(dx, dy)) {
         clickTile(dx, dy);
       }
     }
@@ -493,12 +518,12 @@ void loop() {
       clickTile(selectedX, selectedY);
     }
     else if (getButtonDown(B_BUTTON)) {
-      if ((tiles[selectedX][selectedY] >> 5) & 1) { // if flagged
+      if (isFlagged(selectedX, selectedY)) {
         if (soundEnabled) arduboy.tunes.tone(800, 50);
-        tiles[selectedX][selectedY] &= ~(1 << 5); //unflag
-      } else if (!((tiles[selectedX][selectedY] >> 6) & 1)) { // if not opened
+        unsetFlag(selectedX, selectedY);
+      } else if (!isOpen(selectedX, selectedY)) {
         if (soundEnabled) arduboy.tunes.tone(980, 50);
-        tiles[selectedX][selectedY] |= (1 << 5); // flag
+        setFlag(selectedX, selectedY);
       } else if (fastMode) {
         clickAllSurrounding(selectedX, selectedY);
       }
