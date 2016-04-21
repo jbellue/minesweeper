@@ -2,7 +2,7 @@
 #include "bitmaps.h"
 #include "digits.h"
 
-#define DEBUG
+//#define DEBUG
 
 #define TILE_SIZE 7
 #define ROWS 9
@@ -16,9 +16,9 @@ typedef struct
 } level;
 
 level levels[] = {
-  {"easy", 20},
-  {"medium", 30},
-  {"hard", 40}
+  {"easy",   15},
+  {"medium", 25},
+  {"hard",   35}
 };
 
 enum {
@@ -696,8 +696,6 @@ void enterHighScore(byte file, byte level) {
 
 //Function by nootropic design to display highscores
 void displayHighScores(byte file) {
-  byte y = 10;
-  byte x = 24;
   // Each block of EEPROM has 3 high scores (easy, medium, hard),
   // and each entry is 5 bytes long:
   // 3 bytes for initials and two bytes for time.
