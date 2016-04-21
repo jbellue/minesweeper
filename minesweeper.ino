@@ -602,27 +602,21 @@ void enterInitials() {
     arduboy.fillTriangle(56 + (index * 8), 45, 56 + (index * 8) + 2, 45, 56 + (index * 8) + 1, 46, 1);
 
     if (getButtonDown(LEFT_BUTTON) || getButtonDown(B_BUTTON)) {
-      index--;
-      if (index < 0) {
-        index = 0;
+      if (index > 0) {
+        index--;
       }
-      else {
-        if (soundEnabled) arduboy.tunes.tone(1046, 250);
-      }
+      if (soundEnabled) arduboy.tunes.tone(1046, 50);
     }
     else if (getButtonDown(RIGHT_BUTTON)) {
-      index++;
-      if (index > 2) {
-        index = 2;
+      if (index < 2) {
+        index++;
       }
-      else {
-        if (soundEnabled) arduboy.tunes.tone(1046, 250);
-      }
+      if (soundEnabled) arduboy.tunes.tone(1046, 50);
     }
 
     if (getButtonDown(DOWN_BUTTON)) {
       initials[index]++;
-      if (soundEnabled) arduboy.tunes.tone(523, 250);
+      if (soundEnabled) arduboy.tunes.tone(523, 25);
       // A-Z
       if (initials[index] == '!') {
         initials[index] = 'A';
@@ -633,7 +627,7 @@ void enterInitials() {
     }
     else if (getButtonDown(UP_BUTTON)) {
       initials[index]--;
-      if (soundEnabled) arduboy.tunes.tone(523, 250);
+      if (soundEnabled) arduboy.tunes.tone(523, 25);
       if (initials[index] == '@') {
         initials[index] = ' ';
       }
@@ -643,7 +637,7 @@ void enterInitials() {
     }
 
     if (getButtonDown(A_BUTTON)) {
-      if (soundEnabled) arduboy.tunes.tone(1046, 250);
+      if (soundEnabled) arduboy.tunes.tone(1046, 50);
       if (index < 2) {
         index++;
       }
@@ -718,7 +712,7 @@ void displayHighScores(byte file) {
     hi = EEPROM.read(address + (5 * i));
     lo = EEPROM.read(address + (5 * i) + 1);
 
-    if ((hi == 0xFF) && (lo == 0xFF)) {
+    if ((hi == 0x00) && (lo == 0x00)) {
       currentTime = 999;
     }
     else {
