@@ -6,6 +6,8 @@
 
 #define DEBUG
 
+#define DEBOUNCE_TIME 75
+
 #define TILE_SIZE 7
 #define ROWS 9
 #define COLUMNS 15
@@ -72,6 +74,7 @@ byte totalMines;
 
 unsigned long startTime;
 unsigned long currentTime;
+unsigned long lastClickedTime = 0;
 
 const unsigned char* digits[] = {
   digit_1, digit_2, digit_3, digit_4,
@@ -293,11 +296,11 @@ void settings() {
   text.setCursor(24, 55);
   text.print(F("back"));
 
-  if (arduboy.pressed(UP_BUTTON)) {
+  if (getButtonDown(UP_BUTTON)) {
     if (menuPosition == 0) menuPosition = 3;
     else menuPosition--;
   }
-  else if (arduboy.pressed(DOWN_BUTTON)) {
+  else if (getButtonDown(DOWN_BUTTON)) {
     if (menuPosition == 3) menuPosition = 0;
     else menuPosition++;
   }
@@ -428,11 +431,11 @@ void menu() {
   text.setCursor(15, 55);
   text.print(F("settings and help"));
 
-  if (arduboy.pressed(UP_BUTTON)) {
+  if (getButtonDown(UP_BUTTON)) {
     if (menuPosition == 0) menuPosition = 3;
     else menuPosition--;
   }
-  else if (arduboy.pressed(DOWN_BUTTON)) {
+  else if (getButtonDown(DOWN_BUTTON)) {
     if (menuPosition == 3) menuPosition = 0;
     else menuPosition++;
   }
@@ -490,6 +493,16 @@ void clickAllSurrounding(byte x, byte y) {
   }
 }
 
+bool clickButton(byte btn) {
+  if (arduboy.pressed(btn) && millis() > lastClickedTime + DEBOUNCE_TIME) {
+    lastClickedTime = millis();
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 void loop() {
   if (!(arduboy.nextFrame())) return;
   arduboy.clear();
@@ -515,16 +528,16 @@ void loop() {
     }
 
     drawGame();
-    if (arduboy.pressed(RIGHT_BUTTON) && selectedX < COLUMNS - 1) {
+    if (clickButton(RIGHT_BUTTON) && selectedX < COLUMNS - 1) {
       selectedX++;
     }
-    else if (arduboy.pressed(LEFT_BUTTON) && selectedX > 0) {
+    else if (clickButton(LEFT_BUTTON) && selectedX > 0) {
       selectedX--;
     }
-    if (arduboy.pressed(UP_BUTTON) && selectedY > 0) {
+    if (clickButton(UP_BUTTON) && selectedY > 0) {
       selectedY--;
     }
-    else if (arduboy.pressed(DOWN_BUTTON) && selectedY < ROWS - 1) {
+    else if (clickButton(DOWN_BUTTON) && selectedY < ROWS - 1) {
       selectedY++;
     }
     if (getButtonDown(A_BUTTON)) {
@@ -623,25 +636,32 @@ void enterInitials() {
       tunes.tone(1046, 50);
     }
 
-    if (getButtonDown(DOWN_BUTTON)) {
+    if (clickButton(DOWN_BUTTON)) {
       initials[index]++;
       tunes.tone(523, 25);
       // A-Z
-      if (initials[index] == '!') {
-        initials[index] = 'A';
-      }
-      else if (initials[index] == '[') {
+      // A-Z 0-9 :-? !-/ ' '
+      if (initials[index] == '0') {
         initials[index] = ' ';
+      } else if (initials[index] == '!') {
+        initials[index] = 'A';
+      } else if (initials[index] == '[')  {
+        initials[index] = '0';
+      } else if (initials[index] == '@') {
+        initials[index] = '!';
       }
     }
-    else if (getButtonDown(UP_BUTTON)) {
+    else if (clickButton(UP_BUTTON)) {
       initials[index]--;
       tunes.tone(523, 25);
-      if (initials[index] == '@') {
-        initials[index] = ' ';
-      }
-      else if (initials[index] == 31) {
+      if (initials[index] == ' ') {
+        initials[index] = '?';
+      } else if (initials[index] == '/') {
         initials[index] = 'Z';
+      } else if (initials[index] == 31) {
+        initials[index] = '/';
+      } else if (initials[index] == '@') {
+        initials[index] = ' ';
       }
     }
 

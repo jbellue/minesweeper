@@ -33,7 +33,7 @@ Each tile is represented by a byte:
 Updated to latest (?) version of the library.
 
 ###TODO
-- [ ] Fix the speed. Latest version of the library fixed the speed, and it's too fast now. Lowering the framerate makes things unresponsive...
+- [X] Fix the speed. Latest version of the library fixed the speed, and it's too fast now. Lowering the framerate makes things unresponsive...
 - [ ] Comments. Comments, comments, and comments.
 - [X] Maybe get some kind of debug mode?
 
