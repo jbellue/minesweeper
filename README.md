@@ -29,7 +29,11 @@ Each tile is represented by a byte:
 ....1111 number of surrounding mines (0 to 8)
 ```
 
+### What's new
+Updated to latest (?) version of the library.
+
 ###TODO
+- [ ] Fix the speed. Latest version of the library fixed the speed, and it's too fast now. Lowering the framerate makes things unresponsive...
 - [ ] Comments. Comments, comments, and comments.
 - [X] Maybe get some kind of debug mode?
 
