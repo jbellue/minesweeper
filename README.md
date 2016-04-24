@@ -2,7 +2,7 @@
 
 ## A simple minesweeper for arduboy.
 - A grid of 15 * 9,
-- Three levels of difficulty: easy (20 mines), medium (30) and hard (40),
+- Three levels of difficulty: easy (15 mines), medium (25) and hard (35),
 - Awesome old-school mutable sound effects (because I can't do sound design),
 - Vastly uncommented code (because apparently, I can't really code),
 - Incredible art!
