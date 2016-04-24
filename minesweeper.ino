@@ -4,7 +4,7 @@
 #include "bitmaps.h"
 #include "digits.h"
 
-//#define DEBUG
+#define DEBUG
 
 #define TILE_SIZE 7
 #define ROWS 9
@@ -101,7 +101,8 @@ void reset() {
 
 void setup() {
 #ifdef DEBUG
-  arduboy.beginNoLogo();
+  arduboy.boot();
+  arduboy.audio.begin();
 #else
   arduboy.begin();
 #endif
@@ -311,7 +312,7 @@ void settings() {
   if (getButtonDown(B_BUTTON)) {
     if (menuPosition == 0) {
       if (ArduboyAudio::enabled()) {
-          ArduboyAudio::off();
+        ArduboyAudio::off();
       }
       else {
         ArduboyAudio::on();
@@ -514,20 +515,18 @@ void loop() {
     }
 
     drawGame();
-
-    if (arduboy.pressed(RIGHT_BUTTON) && selectedX < 14) {
+    if (arduboy.pressed(RIGHT_BUTTON) && selectedX < COLUMNS - 1) {
       selectedX++;
     }
     else if (arduboy.pressed(LEFT_BUTTON) && selectedX > 0) {
       selectedX--;
     }
-    else if (arduboy.pressed(UP_BUTTON) && selectedY > 0) {
+    if (arduboy.pressed(UP_BUTTON) && selectedY > 0) {
       selectedY--;
     }
-    else if (arduboy.pressed(DOWN_BUTTON) && selectedY < 8) {
+    else if (arduboy.pressed(DOWN_BUTTON) && selectedY < ROWS - 1) {
       selectedY++;
     }
-
     if (getButtonDown(A_BUTTON)) {
       clickTile(selectedX, selectedY);
     }
