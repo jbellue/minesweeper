@@ -4,10 +4,9 @@
 #include "bitmaps.h"
 #include "digits.h"
 
-#define DEBUG
+//#define DEBUG
 
 #define DEBOUNCE_TIME 75
-
 #define TILE_SIZE 7
 #define ROWS 9
 #define COLUMNS 15
@@ -17,7 +16,6 @@
 #else
 #define HIGH_SCORE_FILE_NAME 3
 #endif
-
 
 typedef struct
 {
@@ -639,7 +637,6 @@ void enterInitials() {
     if (clickButton(DOWN_BUTTON)) {
       initials[index]++;
       tunes.tone(523, 25);
-      // A-Z
       // A-Z 0-9 :-? !-/ ' '
       if (initials[index] == '0') {
         initials[index] = ' ';
