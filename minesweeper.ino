@@ -70,15 +70,18 @@ bool fastMode = true;
 byte buttons = 0;
 byte totalMines;
 
+//counter timers
 unsigned long startTime;
 unsigned long currentTime;
-unsigned long lastClickedTime = 0;
+
+unsigned long lastClickedTime = 0; //used to debounce the time
 
 const unsigned char* digits[] = {
   digit_1, digit_2, digit_3, digit_4,
   digit_5, digit_6, digit_7, digit_8
 };
 
+// prevents buttons to trigger twice before being released.
 bool getButtonDown(byte button) {
   if (arduboy.pressed(button)) {
     if (buttons & button) return false;
@@ -102,6 +105,7 @@ void reset() {
 
 void setup() {
 #ifdef DEBUG
+  // don't annoy me with the menu when I'm debugging!
   arduboy.boot();
   arduboy.audio.begin();
 #else
@@ -115,28 +119,28 @@ void setup() {
   reset();
 }
 
-bool isOpen(byte x, byte y) {
+bool isOpen(byte x, byte y) {    // return .x......
   return ((tiles[x][y] >> 6) & 1);
 }
-bool isFlagged(byte x, byte y) {
+bool isFlagged(byte x, byte y) { // return ..x.....
   return ((tiles[x][y] >> 5) & 1);
 }
-bool isMined(byte x, byte y) {
+bool isMined(byte x, byte y) { // return x.......
   return ((tiles[x][y] >> 7) & 1);
 }
-byte getSurroundingMines(byte x, byte y) {
+byte getSurroundingMines(byte x, byte y) { // return ....xxxx
   return (tiles[x][y] & 0x0F);
 }
-void setMine(byte x, byte y) {
+void setMine(byte x, byte y) { // set 1.......
   tiles[x][y] |= (1 << 7);
 }
-void setOpen(byte x, byte y) {
+void setOpen(byte x, byte y) { // set .1......
   tiles[x][y] |= (1 << 6);
 }
-void unsetFlag(byte x, byte y) {
+void unsetFlag(byte x, byte y) { // set ..0.....
   tiles[x][y] &= ~(1 << 5);
 }
-void setFlag(byte x, byte y) {
+void setFlag(byte x, byte y) { // set ..1.....
   tiles[x][y] |= (1 << 5);
 }
 
@@ -148,15 +152,18 @@ void drawGrid() {
           arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 1, digits[getSurroundingMines(x, y) - 1], 3, 5, WHITE);
         }
       } else {
+        // closed mine
         arduboy.fillRect(x * TILE_SIZE + 2, y * TILE_SIZE + 2 , 4, 4, WHITE);
       }
-      if (isFlagged(x, y)) { // if flagged
+      if (isFlagged(x, y)) {
         arduboy.fillRect(x * TILE_SIZE + 3, y * TILE_SIZE + 3, 2, 2, BLACK);
       }
     }
   }
 
-  arduboy.drawRect(0, 0, WIDTH - 22, HEIGHT, WHITE);
+  arduboy.drawRect(0, 0, WIDTH - 22, HEIGHT, WHITE); // borders
+
+  // actually drawing the grid
   for (byte w = TILE_SIZE; w <= WIDTH - 22; w += TILE_SIZE) {
     arduboy.drawFastVLine(w, 0, HEIGHT, WHITE);
   }
@@ -164,14 +171,14 @@ void drawGrid() {
     arduboy.drawFastHLine(0, h, WIDTH - 22, WHITE);
   }
 #ifdef DEBUG
-  drawMines();
+  drawMines(); //cheat when debugging
 #endif
 }
 
 void drawMines() {
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
-      if (isMined(x, y)) { // if there's a mine
+      if (isMined(x, y)) {
         arduboy.drawBitmap(x * TILE_SIZE + 2, y * TILE_SIZE + 2, mineTile, 4, 4, BLACK);
       }
     }
@@ -180,12 +187,15 @@ void drawMines() {
 
 void getNumberOfSurroundingMines() {
   byte surroundingMines;
+  //for each mine
   for (byte x = 0; x < COLUMNS; x++) {
     for (byte y = 0; y < ROWS; y++) {
       surroundingMines = 0;
       if (!isMined(x, y)) { // if there's no mine
+        // get all the mines around it
         for (int dx = x - 1; dx <= x + 1; dx++) {
           for (int dy = y - 1; dy <= y + 1; dy++) {
+            // skip tiles out of the board
             if (dx >= 0 && dx < COLUMNS &&
                 dy >= 0 && dy < ROWS    &&
                 !(dx == x && dy == y)   &&
@@ -235,6 +245,7 @@ void propagate(byte x, byte y) {
 
   for (int dx = x - 1; dx <= x + 1; dx++) {
     for (int dy = y - 1; dy <= y + 1; dy++) {
+      // propagate to all surrounding mines
       if (dx >= 0 && dx < COLUMNS &&
           dy >= 0 && dy < ROWS    &&
           !(dx == x && dy == y)) {
@@ -246,7 +257,7 @@ void propagate(byte x, byte y) {
 
 void clickTile(byte x, byte y) {
   if (!isMined(x, y)) {
-    unsetFlag(x, y);
+    unsetFlag(x, y); //probably not necessary, but heh.
     propagate(x, y);
   } else {
     state = STATE_LOSE;
@@ -306,11 +317,7 @@ void settings() {
   if (ArduboyAudio::enabled()) arduboy.fillCircle(15, 25, 3, WHITE);
   if (fastMode) arduboy.fillCircle(15, 36, 3, WHITE);
 
-  if (getButtonDown(A_BUTTON)) {
-    menuPosition = 0;
-    state = STATE_MENU;
-  }
-  if (getButtonDown(B_BUTTON)) {
+  if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     if (menuPosition == 0) {
       if (ArduboyAudio::enabled()) {
         ArduboyAudio::off();

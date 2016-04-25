@@ -15,7 +15,7 @@
 - Move with the D-Pad
 - Left button opens a tile
 - Right button flags a tile
-- I can't remember what I did in the menus. Was it B goes back, and A validates? A and B are confusing on the Arduboy... Why not keep them inverted, like on the Gameboy?!
+- A and B validate in the menus
 
 
 ### technical stuff
