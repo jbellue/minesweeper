@@ -573,11 +573,9 @@ void loop() {
   else if (state == STATE_LOSE) {
     if (firstTime) {
       firstTime = false;
-      if (ArduboyAudio::enabled()) {
-        tunes.tone(587, 40);
-        delay(160);
-        tunes.tone(392, 40);
-      }
+      tunes.tone(587, 40);
+      delay(160);
+      tunes.tone(392, 40);
     }
     drawGame();
     drawMines();
