@@ -259,6 +259,7 @@ void clickTile(byte x, byte y) {
   if (!isMined(x, y)) {
     unsetFlag(x, y); //probably not necessary, but heh.
     propagate(x, y);
+    checkVictory();
   } else {
     state = STATE_LOSE;
   }
@@ -376,7 +377,6 @@ void clearHighscoreConfirm() {
   else {
     text.setCursor(48, 37);
     text.print(F("Sure?"));
-
   }
   text.setCursor(46, 48);
   text.print(F("Cancel"));
@@ -559,8 +559,6 @@ void loop() {
         clickAllSurrounding(selectedX, selectedY);
       }
     }
-    checkVictory();
-
   }
   else if (state == STATE_WIN) {
     drawGame();
