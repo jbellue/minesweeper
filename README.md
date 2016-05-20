@@ -30,11 +30,12 @@ Each tile is represented by a byte:
 ```
 
 ### What's new
-Updated to latest (?) version of the library.
+Reverted to latest released version of the library.
 
 ###TODO
-- [X] Fix the speed. Latest version of the library fixed the speed, and it's too fast now. Lowering the framerate makes things unresponsive...
 - [ ] Comments. Comments, comments, and comments.
 - [X] Maybe get some kind of debug mode?
+- [ ] Better README (not gonna happen)
+- [ ] Diagonals?
 
 Note: great thanks to http://fuopy.github.io/arduboy-image-converter/
