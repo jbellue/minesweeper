@@ -1,5 +1,4 @@
 #include <Arduboy.h>
-#include <ArduboyPlaytune.h>
 
 #include "bitmaps.h"
 #include "digits.h"
@@ -45,8 +44,6 @@ byte state;
 char text_buffer[32]; //General string buffer
 
 Arduboy arduboy;
-AbPrinter text(arduboy);
-ArduboyPlaytune tunes;
 
 byte selectedX = 0;
 byte selectedY = 0;
@@ -67,6 +64,7 @@ byte tiles[COLUMNS][ROWS];
 bool firstTime;
 
 bool fastMode = true;
+bool audioOn = true;
 byte buttons = 0;
 byte totalMines;
 
@@ -107,14 +105,12 @@ void setup() {
 #ifdef DEBUG
   // don't annoy me with the menu when I'm debugging!
   arduboy.boot();
-  arduboy.audio.begin();
+  soundOn = false;
 #else
   arduboy.begin();
 #endif
   arduboy.setFrameRate(10);
-  tunes.initChannel(PIN_SPEAKER_1);
-  tunes.initChannel(PIN_SPEAKER_2);
-  text.setSize(1);
+  arduboy.setTextSize(1);
   arduboy.initRandomSeed();
   reset();
 }
@@ -236,7 +232,7 @@ void propagate(byte x, byte y) {
     return;
   }
 
-  if (state != STATE_LOSE) tunes.tone(587, 20);
+  if (state != STATE_LOSE && audioOn) arduboy.tunes.tone(587, 20);
 
   setOpen(x, y);
   if (getSurroundingMines(x, y) > 0) {
@@ -281,10 +277,10 @@ int minesLeft() {
 }
 
 void drawExtras() {
-  text.setCursor(110, 1);
-  text.print(minesLeft());
-  text.setCursor(110, 56);
-  text.print(currentTime);
+  arduboy.setCursor(110, 1);
+  arduboy.print(minesLeft());
+  arduboy.setCursor(110, 56);
+  arduboy.print(currentTime);
 }
 
 void drawGame() {
@@ -297,14 +293,14 @@ void settings() {
   arduboy.drawBitmap(0, 1, settingsTitle, 58, 18, WHITE);
   arduboy.drawRoundRect(10, menuPosition * 11 + 20, 112, 11, 5, WHITE);
 
-  text.setCursor(24, 22);
-  text.print(F("sounds"));
-  text.setCursor(24, 33);
-  text.print(F("fast mode"));
-  text.setCursor(24, 44);
-  text.print(F("help"));
-  text.setCursor(24, 55);
-  text.print(F("back"));
+  arduboy.setCursor(24, 22);
+  arduboy.print(F("sounds"));
+  arduboy.setCursor(24, 33);
+  arduboy.print(F("fast mode"));
+  arduboy.setCursor(24, 44);
+  arduboy.print(F("help"));
+  arduboy.setCursor(24, 55);
+  arduboy.print(F("back"));
 
   if (getButtonDown(UP_BUTTON)) {
     if (menuPosition == 0) menuPosition = 3;
@@ -315,23 +311,22 @@ void settings() {
     else menuPosition++;
   }
 
-  if (ArduboyAudio::enabled()) arduboy.fillCircle(15, 25, 3, WHITE);
+  if (audioOn) arduboy.fillCircle(15, 25, 3, WHITE);
   if (fastMode) arduboy.fillCircle(15, 36, 3, WHITE);
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     if (menuPosition == 0) {
-      if (ArduboyAudio::enabled()) {
-        ArduboyAudio::off();
+      if (audioOn) {
+        audioOn = false;
       }
       else {
-        ArduboyAudio::on();
+		arduboy.tunes.tone(587, 40);
+        audioOn = true;
       }
-      ArduboyAudio::saveOnOff();
-      tunes.tone(587, 40);
     }
     else if (menuPosition == 1) {
       fastMode = !fastMode;
-      tunes.tone(587, 40);
+      if (audioOn) arduboy.tunes.tone(587, 40);
     }
     else if (menuPosition == 2) {
       menuPosition = 0;
@@ -347,14 +342,14 @@ void settings() {
 void helpFastMode() {
   arduboy.drawBitmap(0, 1, fastModeTitle, 74, 13, WHITE);
 
-  text.setCursor(0, 17);
-  text.print(F("Flagging an open tile"));
-  text.setCursor(0, 27);
-  text.print(F("opens all non-flagged"));
-  text.setCursor(0, 37);
-  text.print(F("tiles around."));
-  text.setCursor(43, 53);
-  text.print(F("Careful!"));
+  arduboy.setCursor(0, 17);
+  arduboy.print(F("Flagging an open tile"));
+  arduboy.setCursor(0, 27);
+  arduboy.print(F("opens all non-flagged"));
+  arduboy.setCursor(0, 37);
+  arduboy.print(F("tiles around."));
+  arduboy.setCursor(43, 53);
+  arduboy.print(F("Careful!"));
 
   if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
     state = STATE_SETTINGS;
@@ -362,24 +357,24 @@ void helpFastMode() {
 }
 
 void clearHighscoreConfirm() {
-  text.setSize(2);
-  text.setCursor(22, 0);
-  text.print(F("WARNING"));
-  text.setSize(1);
+  arduboy.setTextSize(2);
+  arduboy.setCursor(22, 0);
+  arduboy.print(F("WARNING"));
+  arduboy.setTextSize(1);
 
-  text.setCursor(10, 22);
-  text.print(F("Delete highscores?"));
+  arduboy.setCursor(10, 22);
+  arduboy.print(F("Delete highscores?"));
   arduboy.drawRoundRect(38, menuPosition * 11 + 35, 51, 11, 5, WHITE);
   if (firstTime) {
-    text.setCursor(43, 37);
-    text.print(F("Confirm"));
+    arduboy.setCursor(43, 37);
+    arduboy.print(F("Confirm"));
   }
   else {
-    text.setCursor(48, 37);
-    text.print(F("Sure?"));
+    arduboy.setCursor(48, 37);
+    arduboy.print(F("Sure?"));
   }
-  text.setCursor(46, 48);
-  text.print(F("Cancel"));
+  arduboy.setCursor(46, 48);
+  arduboy.print(F("Cancel"));
 
   if (getButtonDown(UP_BUTTON) || getButtonDown(DOWN_BUTTON)) {
     menuPosition = (menuPosition == 0) ? 1 : 0;
@@ -404,15 +399,15 @@ void helpControls() {
   arduboy.drawBitmap(76, 0, arduboyBMP, 52, 64, WHITE);
   arduboy.drawBitmap(0, 1, controlsTitle, 66, 13, WHITE);
 
-  text.setCursor(8, 21);
-  text.print(F("toggle flag"));
-  text.setCursor(8, 36);
-  text.print(F("move cursor"));
-  text.setCursor(1, 51);
-  text.print(F("click a tile"));
+  arduboy.setCursor(8, 21);
+  arduboy.print(F("toggle flag"));
+  arduboy.setCursor(8, 36);
+  arduboy.print(F("move cursor"));
+  arduboy.setCursor(1, 51);
+  arduboy.print(F("click a tile"));
 
   // sound icon in the screen.
-  if (ArduboyAudio::enabled()) {
+  if (audioOn) {
     arduboy.drawBitmap(101, 8, sound, 14, 12, WHITE);
   } else {
     arduboy.drawBitmap(103, 8, noSound, 12, 12, WHITE);
@@ -428,13 +423,13 @@ void menu() {
   arduboy.drawRoundRect(10, menuPosition * 11 + 21, 112, 10, 5, WHITE);
 
   for (byte i = 0; i < 3; i++) {
-    text.setCursor(15, (11 * i) + 22);
+    arduboy.setCursor(15, (11 * i) + 22);
     sprintf(text_buffer, "%-6s (%d mines)", levels[i].name, levels[i].mines);
-    text.print(text_buffer);
+    arduboy.print(text_buffer);
   }
 
-  text.setCursor(15, 55);
-  text.print(F("settings and help"));
+  arduboy.setCursor(15, 55);
+  arduboy.print(F("settings and help"));
 
   if (getButtonDown(UP_BUTTON)) {
     if (menuPosition == 0) menuPosition = 3;
@@ -475,13 +470,13 @@ void checkVictory() {
   }
   if (ret == (COLUMNS * ROWS) - totalMines) { //yay
     state = STATE_WIN;
-    if (ArduboyAudio::enabled()) {
-      tunes.tone(587, 40);
-      delay(160);
-      tunes.tone(782, 40);
-      delay(160);
-      tunes.tone(977, 40);
-    }
+	if (audioOn) {
+	  arduboy.tunes.tone(587, 40);
+	  delay(160);
+	  arduboy.tunes.tone(782, 40);
+	  delay(160);
+	  arduboy.tunes.tone(977, 40);
+	}
   }
 }
 
@@ -550,10 +545,10 @@ void loop() {
     }
     else if (getButtonDown(B_BUTTON)) {
       if (isFlagged(selectedX, selectedY)) {
-        tunes.tone(800, 50);
+        if (audioOn) arduboy.tunes.tone(800, 50);
         unsetFlag(selectedX, selectedY);
       } else if (!isOpen(selectedX, selectedY)) {
-        tunes.tone(980, 50);
+        if (audioOn) arduboy.tunes.tone(980, 50);
         setFlag(selectedX, selectedY);
       } else if (fastMode) {
         clickAllSurrounding(selectedX, selectedY);
@@ -573,9 +568,11 @@ void loop() {
   else if (state == STATE_LOSE) {
     if (firstTime) {
       firstTime = false;
-      tunes.tone(587, 40);
-      delay(160);
-      tunes.tone(392, 40);
+	  if (audioOn) {
+        arduboy.tunes.tone(587, 40);
+        delay(160);
+        arduboy.tunes.tone(392, 40);
+	  }
     }
     drawGame();
     drawMines();
@@ -611,10 +608,10 @@ void enterInitials() {
     arduboy.display();
     arduboy.clear();
 
-    text.setCursor(25, 0);
-    text.print(F("NEW BEST TIME"));
-    text.setCursor((currentTime > 99) ? 55 : 58, 15);
-    text.print(currentTime);
+    arduboy.setCursor(25, 0);
+    arduboy.print(F("NEW BEST TIME"));
+    arduboy.setCursor((currentTime > 99) ? 55 : 58, 15);
+    arduboy.print(currentTime);
     arduboy.drawChar(55, 35, initials[0], WHITE, BLACK, 1);
     arduboy.drawChar(63, 35, initials[1], WHITE, BLACK, 1);
     arduboy.drawChar(71, 35, initials[2], WHITE, BLACK, 1);
@@ -628,18 +625,18 @@ void enterInitials() {
       if (index > 0) {
         index--;
       }
-      tunes.tone(1046, 50);
+      if (audioOn) arduboy.tunes.tone(1046, 50);
     }
     else if (getButtonDown(RIGHT_BUTTON)) {
       if (index < 2) {
         index++;
       }
-      tunes.tone(1046, 50);
+      if (audioOn) arduboy.tunes.tone(1046, 50);
     }
 
     if (clickButton(DOWN_BUTTON)) {
       initials[index]++;
-      tunes.tone(523, 25);
+      if (audioOn) arduboy.tunes.tone(523, 25);
       // A-Z 0-9 :-? !-/ ' '
       if (initials[index] == '0') {
         initials[index] = ' ';
@@ -653,7 +650,7 @@ void enterInitials() {
     }
     else if (clickButton(UP_BUTTON)) {
       initials[index]--;
-      tunes.tone(523, 25);
+      if (audioOn) arduboy.tunes.tone(523, 25);
       if (initials[index] == ' ') {
         initials[index] = '?';
       } else if (initials[index] == '/') {
@@ -666,7 +663,7 @@ void enterInitials() {
     }
 
     if (getButtonDown(A_BUTTON)) {
-      tunes.tone(1046, 50);
+      if (audioOn) arduboy.tunes.tone(1046, 50);
       if (index < 2) {
         index++;
       }
@@ -731,8 +728,8 @@ void displayHighScores(byte file) {
   int address = file * 3 * 5;
   byte hi, lo;
   arduboy.clear();
-  text.setCursor(34, 5);
-  text.print(F("BEST TIMES"));
+  arduboy.setCursor(34, 5);
+  arduboy.print(F("BEST TIMES"));
   arduboy.display();
 
   for (int i = 0; i < 3; i++) {
@@ -752,8 +749,8 @@ void displayHighScores(byte file) {
 
     if (currentTime < 999) {
       sprintf(text_buffer, "%-6s %c%c%c (%u)", levels[i].name, initials[0], initials[1], initials[2], currentTime);
-      text.setCursor(22, 22 + (i * 12));
-      text.print(text_buffer);
+      arduboy.setCursor(22, 22 + (i * 12));
+      arduboy.print(text_buffer);
 
       arduboy.display();
     }
