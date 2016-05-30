@@ -520,19 +520,20 @@ void loop() {
     if (!(arduboy.nextFrame())) return;
     arduboy.clear();
 
-    if (state == STATE_MENU) {
+    switch(state) {
+    case STATE_MENU:
         menu();
-    }
-    else if (state == STATE_SETTINGS) {
+        break;
+    case STATE_SETTINGS:
         settings();
-    }
-    else if (state == STATE_HELP) {
+        break;
+    case STATE_HELP:
         helpControls();
-    }
-    else if (state == STATE_HELP2) {
+        break;
+    case STATE_HELP2:
         helpFastMode();
-    }
-    else if (state == STATE_PLAY) {
+        break;
+    case STATE_PLAY:
         if (((millis() - startTime) / 1000) < 999) {
             currentTime = ((millis() - startTime) / 1000);
         } else {
@@ -563,7 +564,8 @@ void loop() {
                 clickAllSurrounding(selectedX, selectedY);
             }
         }
-    } else if (state == STATE_WIN) {
+        break;
+    case STATE_WIN:
         drawGame();
         arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
         if (getButtonDown(A_BUTTON)) {
@@ -572,7 +574,8 @@ void loop() {
             reset();
             state = STATE_HIGHSCORE;
         }
-    } else if (state == STATE_LOSE) {
+        break;
+    case STATE_LOSE:
         if (firstTime) {
             firstTime = false;
 	    if (audioOn) {
@@ -588,10 +591,13 @@ void loop() {
             reset();
             state = STATE_MENU;
         }
-    } else if (state == STATE_HIGHSCORE) {
+        break;
+    case STATE_HIGHSCORE:
         displayHighScores(HIGH_SCORE_FILE_NAME);
-    } else if (state == STATE_CLEAR_HIGHSCORES) {
+        break;
+    case STATE_CLEAR_HIGHSCORES:
         clearHighscoreConfirm();
+        break;
     }
     arduboy.display();
 }
