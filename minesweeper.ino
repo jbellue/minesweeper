@@ -34,8 +34,8 @@ level levels[] = {
 enum {
     STATE_MENU,
     STATE_SETTINGS,
-    STATE_HELP,
-    STATE_HELP2,
+    STATE_HELP_CONTROLS,
+    STATE_HELP_FAST_MODE,
     STATE_PLAY,
     STATE_LOSE,
     STATE_WIN,
@@ -343,7 +343,7 @@ void settings() {
         }
         else if (menuPosition == 2) {
             menuPosition = 0;
-            state = STATE_HELP;
+            state = STATE_HELP_CONTROLS;
         }
         else {
             menuPosition = 0;
@@ -427,7 +427,7 @@ void helpControls() {
     }
 
     if (getButtonDown(A_BUTTON) || getButtonDown(B_BUTTON)) {
-        state = STATE_HELP2;
+        state = STATE_HELP_FAST_MODE;
     }
 }
 
@@ -527,10 +527,10 @@ void loop() {
     case STATE_SETTINGS:
         settings();
         break;
-    case STATE_HELP:
+    case STATE_HELP_CONTROLS:
         helpControls();
         break;
-    case STATE_HELP2:
+    case STATE_HELP_FAST_MODE:
         helpFastMode();
         break;
     case STATE_PLAY:
