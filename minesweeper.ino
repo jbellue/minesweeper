@@ -73,7 +73,7 @@ byte totalMines;
 
 //counter timers
 unsigned long startTime;
-unsigned long currentTime;
+unsigned long currentTime = 0;
 bool timerStarted = false;
 
 unsigned long lastClickedTime = 0; // used to debounce the time
@@ -109,6 +109,7 @@ void reset() {
     selectedY = 0;
     firstTime = true;
     timerStarted = false;
+    currentTime = 0;
     memset(tiles, 0, sizeof(tiles[0][0]) * ROWS * COLUMNS);
     arduboy.clear();
     state = STATE_MENU;
@@ -117,12 +118,12 @@ void reset() {
 void setup() {
 #ifdef DEBUG
     // don't annoy me with the menu when I'm debugging!
-    arduboy.boot();
-    soundOn = false;
+    //arduboy.boot(); // this doesn't work... meh.
+    audioOn = false;
 #else
-    arduboy.begin();
-#endif
     getAudio();
+#endif
+    arduboy.begin();
     arduboy.setFrameRate(10);
     arduboy.setTextSize(1);
     arduboy.initRandomSeed();
@@ -464,7 +465,6 @@ void menu() {
             totalMines = levels[menuPosition].mines;
             setMines();
             getNumberOfSurroundingMines();
-            startTime = millis();
             state = STATE_PLAY;
         }
     }
@@ -496,10 +496,12 @@ void checkVictory() {
 }
 
 void playGame() {
-    if (((millis() - startTime) / 1000) < 999) {
-        currentTime = ((millis() - startTime) / 1000);
-    } else {
-        currentTime = 999;
+    if (timerStarted) {
+        if (((millis() - startTime) / 1000) < 999) {
+            currentTime = ((millis() - startTime) / 1000);
+        } else {
+            currentTime = 999;
+        }
     }
 
     drawGame();
@@ -514,8 +516,10 @@ void playGame() {
         selectedY++;
     }
     if (getButtonDown(A_BUTTON)) {
+        startTimer();
         clickTile(selectedX, selectedY);
     } else if (getButtonDown(B_BUTTON)) {
+        startTimer();
         if (isFlagged(selectedX, selectedY)) {
             if (audioOn) arduboy.tunes.tone(800, 50);
             unsetFlag(selectedX, selectedY);
@@ -528,15 +532,24 @@ void playGame() {
     }
 }
 
+void startTimer() {
+    if (!timerStarted) {
+        startTime = millis();
+        timerStarted = true;
+    }
+}
+
 void winGame() {
     drawGame();
     arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
-    if (getButtonDown(A_BUTTON)) {
-        enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
-
-        reset();
-        state = STATE_HIGHSCORE;
+    arduboy.display();
+    while (!getButtonDown(A_BUTTON)) {
     }
+    enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
+
+    reset();
+    state = STATE_HIGHSCORE;
+    
 }
 
 void loseGame() {
@@ -551,10 +564,11 @@ void loseGame() {
     drawGame();
     drawMines();
     arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
-    if (getButtonDown(A_BUTTON)) {
-        reset();
-        state = STATE_MENU;
+    arduboy.display();
+    while (!getButtonDown(A_BUTTON)) {
     }
+    reset();
+    state = STATE_MENU;
 }
 
 void clickAllSurrounding(byte x, byte y) {
