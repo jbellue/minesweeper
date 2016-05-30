@@ -74,6 +74,7 @@ byte totalMines;
 //counter timers
 unsigned long startTime;
 unsigned long currentTime;
+bool timerStarted = false;
 
 unsigned long lastClickedTime = 0; // used to debounce the time
 
@@ -107,6 +108,7 @@ void reset() {
     selectedX = 0;
     selectedY = 0;
     firstTime = true;
+    timerStarted = false;
     memset(tiles, 0, sizeof(tiles[0][0]) * ROWS * COLUMNS);
     arduboy.clear();
     state = STATE_MENU;
@@ -493,6 +495,68 @@ void checkVictory() {
     }
 }
 
+void playGame() {
+    if (((millis() - startTime) / 1000) < 999) {
+        currentTime = ((millis() - startTime) / 1000);
+    } else {
+        currentTime = 999;
+    }
+
+    drawGame();
+    if (clickButton(RIGHT_BUTTON) && selectedX < COLUMNS - 1) {
+        selectedX++;
+    } else if (clickButton(LEFT_BUTTON) && selectedX > 0) {
+        selectedX--;
+    }
+    if (clickButton(UP_BUTTON) && selectedY > 0) {
+        selectedY--;
+    } else if (clickButton(DOWN_BUTTON) && selectedY < ROWS - 1) {
+        selectedY++;
+    }
+    if (getButtonDown(A_BUTTON)) {
+        clickTile(selectedX, selectedY);
+    } else if (getButtonDown(B_BUTTON)) {
+        if (isFlagged(selectedX, selectedY)) {
+            if (audioOn) arduboy.tunes.tone(800, 50);
+            unsetFlag(selectedX, selectedY);
+        } else if (!isOpen(selectedX, selectedY)) {
+            if (audioOn) arduboy.tunes.tone(980, 50);
+            setFlag(selectedX, selectedY);
+        } else if (fastMode) {
+            clickAllSurrounding(selectedX, selectedY);
+        }
+    }
+}
+
+void winGame() {
+    drawGame();
+    arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
+    if (getButtonDown(A_BUTTON)) {
+        enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
+
+        reset();
+        state = STATE_HIGHSCORE;
+    }
+}
+
+void loseGame() {
+    if (firstTime) {
+        firstTime = false;
+        if (audioOn) {
+                arduboy.tunes.tone(587, 40);
+                delay(160);
+                arduboy.tunes.tone(392, 40);
+        }
+    }
+    drawGame();
+    drawMines();
+    arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
+    if (getButtonDown(A_BUTTON)) {
+        reset();
+        state = STATE_MENU;
+    }
+}
+
 void clickAllSurrounding(byte x, byte y) {
     for (int dx = x - 1; dx <= x + 1; dx++) {
         for (int dy = y - 1; dy <= y + 1; dy++) {
@@ -534,63 +598,13 @@ void loop() {
         helpFastMode();
         break;
     case STATE_PLAY:
-        if (((millis() - startTime) / 1000) < 999) {
-            currentTime = ((millis() - startTime) / 1000);
-        } else {
-            currentTime = 999;
-        }
-
-        drawGame();
-        if (clickButton(RIGHT_BUTTON) && selectedX < COLUMNS - 1) {
-            selectedX++;
-        } else if (clickButton(LEFT_BUTTON) && selectedX > 0) {
-            selectedX--;
-        }
-        if (clickButton(UP_BUTTON) && selectedY > 0) {
-            selectedY--;
-        } else if (clickButton(DOWN_BUTTON) && selectedY < ROWS - 1) {
-            selectedY++;
-        }
-        if (getButtonDown(A_BUTTON)) {
-            clickTile(selectedX, selectedY);
-        } else if (getButtonDown(B_BUTTON)) {
-            if (isFlagged(selectedX, selectedY)) {
-                if (audioOn) arduboy.tunes.tone(800, 50);
-                unsetFlag(selectedX, selectedY);
-            } else if (!isOpen(selectedX, selectedY)) {
-                if (audioOn) arduboy.tunes.tone(980, 50);
-                setFlag(selectedX, selectedY);
-            } else if (fastMode) {
-                clickAllSurrounding(selectedX, selectedY);
-            }
-        }
+        playGame();
         break;
     case STATE_WIN:
-        drawGame();
-        arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
-        if (getButtonDown(A_BUTTON)) {
-            enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
-
-            reset();
-            state = STATE_HIGHSCORE;
-        }
+        winGame();
         break;
     case STATE_LOSE:
-        if (firstTime) {
-            firstTime = false;
-	    if (audioOn) {
-                arduboy.tunes.tone(587, 40);
-                delay(160);
-                arduboy.tunes.tone(392, 40);
-	    }
-        }
-        drawGame();
-        drawMines();
-        arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
-        if (getButtonDown(A_BUTTON)) {
-            reset();
-            state = STATE_MENU;
-        }
+        loseGame();
         break;
     case STATE_HIGHSCORE:
         displayHighScores(HIGH_SCORE_FILE_NAME);
