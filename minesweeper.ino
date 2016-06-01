@@ -475,23 +475,18 @@ void menu() {
 }
 
 void checkVictory() {
-    byte ret = 0;
-    for (byte x = 0; x < COLUMNS; x++) {
-        for (byte y = 0; y < ROWS; y++) {
-            if (isOpen(x, y)) {
-                ret++;
+    if (state != STATE_LOSE) {
+        byte ret = 0;
+        for (byte x = 0; x < COLUMNS; x++) {
+            for (byte y = 0; y < ROWS; y++) {
+                if (isOpen(x, y)) {
+                    ret++;
+                }
             }
         }
-    }
-    if (ret == (COLUMNS * ROWS) - totalMines) { //yay
-        state = STATE_WIN;
-    	if (audioOn) {
-    	    arduboy.tunes.tone(587, 40);
-    	    delay(160);
-    	    arduboy.tunes.tone(782, 40);
-    	    delay(160);
-    	    arduboy.tunes.tone(977, 40);
-    	}
+        if (ret == (COLUMNS * ROWS) - totalMines) { //yay
+            state = STATE_WIN;
+        }
     }
 }
 
@@ -543,6 +538,15 @@ void winGame() {
     drawGame();
     arduboy.drawBitmap(109, 14, win, 18, 30, WHITE);
     arduboy.display();
+
+    if (audioOn) {
+        arduboy.tunes.tone(587, 40);
+        delay(160);
+        arduboy.tunes.tone(782, 40);
+        delay(160);
+        arduboy.tunes.tone(977, 40);
+    }
+
     while (!getButtonDown(A_BUTTON)) {
     }
     enterHighScore(HIGH_SCORE_FILE_NAME, menuPosition);
@@ -553,18 +557,17 @@ void winGame() {
 }
 
 void loseGame() {
-    if (firstTime) {
-        firstTime = false;
-        if (audioOn) {
-                arduboy.tunes.tone(587, 40);
-                delay(160);
-                arduboy.tunes.tone(392, 40);
-        }
-    }
     drawGame();
     drawMines();
     arduboy.drawBitmap(108, 13, dead, 20, 31, WHITE);
     arduboy.display();
+
+    if (audioOn) {
+        arduboy.tunes.tone(587, 40);
+        delay(160);
+        arduboy.tunes.tone(392, 40);
+    }
+
     while (!getButtonDown(A_BUTTON)) {
     }
     reset();
