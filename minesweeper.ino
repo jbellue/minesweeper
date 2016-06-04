@@ -41,8 +41,7 @@ enum {
     STATE_WIN,
     STATE_HIGHSCORE,
     STATE_CLEAR_HIGHSCORES,
-};
-byte state;
+} state;
 
 char text_buffer[32]; // General string buffer
 
