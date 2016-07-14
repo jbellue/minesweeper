@@ -1,4 +1,4 @@
-# Arduboy minesweeper
+# Ardusweeper (let's call this version 1.0)
 
 ## A simple minesweeper for arduboy.
 - A grid of 15 * 9,
