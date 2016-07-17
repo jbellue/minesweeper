@@ -1,5 +1,6 @@
 # Ardusweeper (let's call this version 1.0)
-
+![in-game screen](https://github.com/jbellue/minesweeper/blob/master/screenshots/ingame.png "In-game screen")
+![won screen](https://github.com/jbellue/minesweeper/blob/master/screenshots/won.png "Game won screen")
 ## A simple minesweeper for arduboy.
 - A grid of 15 * 9,
 - Three levels of difficulty: easy (15 mines), medium (25) and hard (35),
